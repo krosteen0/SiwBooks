@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accedi - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Framework -->
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/auth.css}" />
+</head>
+<body class="auth-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Auth Section -->
+    <main class="auth-main">
+        <div class="auth-background"></div>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <h1 class="auth-title">Bentornato!</h1>
+                    <p class="auth-subtitle">Accedi per continuare la tua avventura letteraria</p>
+                </div>
+                
+                <!-- Success Messages -->
+                <div th:if="${param.registered}" class="message message-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Registrazione completata con successo! Ora puoi accedere con le tue credenziali.</span>
+                </div>
+                
+                <div th:if="${param.usernameChanged}" class="message message-success">
+                    <i class="fas fa-user-edit"></i>
+                    <span>Username aggiornato con successo! Accedi con il tuo nuovo username.</span>
+                </div>
+                
+                <div th:if="${param.profileUpdated}" class="message message-success">
+                    <i class="fas fa-user-check"></i>
+                    <span>Profilo aggiornato con successo! Effettua di nuovo il login.</span>
+                </div>
+                
+                <!-- Error Messages -->
+                <div th:if="${param.accessDenied}" class="message message-error">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Accesso negato. Devi effettuare il login come amministratore per accedere a questa funzionalità.</span>
+                </div>
+                
+                <div th:if="${param.error}" class="message message-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Username o password errati.</span>
+                </div>
+                
+                <!-- Login Form -->
+                <form th:action="@{/login}" method="post" class="auth-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    
+                    <div class="form-group">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Username
+                        </label>
+                        <input type="text" id="username" name="username" class="form-input" required 
+                               placeholder="Inserisci il tuo username" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Password
+                        </label>
+                        <input type="password" id="password" name="password" class="form-input" required 
+                               placeholder="Inserisci la tua password" />
+                    </div>
+                    
+                    <button type="submit" class="auth-button auth-button-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Accedi</span>
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p class="auth-link-text">
+                        Non hai un account? 
+                        <a th:href="@{/users/register}" class="auth-link">Registrati qui</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include footer fragment -->
+    <div th:insert="~{fragments/footer :: footer}"></div>
+</body>
+</html>
+

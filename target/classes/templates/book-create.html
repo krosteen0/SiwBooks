@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Creazione Libro - Biblioteca Aeternum</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/book-create.css}" />
+    
+    <meta name="description" content="Aggiungi un nuovo libro alla biblioteca Aeternum">
+</head>
+<body class="book-create-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Creazione Libro</span>  
+            </h1>
+            <p class="hero-subtitle">Completa i passaggi per aggiungere un libro alla biblioteca</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span>/</span>
+            <a th:href="@{/book}">
+                <i class="fas fa-book"></i> Biblioteca
+            </a>
+            <span>/</span>
+            <span>Nuovo Libro</span>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <div class="alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-text">
+                    <strong>Errore!</strong>
+                    <span th:text="${errorMessage}">Messaggio di errore</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Section -->
+        <section class="create-header-section">
+            <div class="create-header-container">
+                <div class="header-content">
+                    <h2 class="section-title">
+                        <i class="fas fa-book-open"></i>
+                        Creazione Libro
+                    </h2>
+                    <p class="section-subtitle">Segui i passaggi guidati per aggiungere un nuovo libro alla biblioteca</p>
+                </div>
+                <div class="auto-save-indicator">
+                    <i class="fas fa-save"></i>
+                    <span id="autoSaveStatus">Bozza salvata automaticamente</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Bar -->
+        <section class="progress-section">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-line" id="progressLine"></div>
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Immagini</div>
+                        <div class="step-icon"><i class="fas fa-images"></i></div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Dettagli</div>
+                        <div class="step-icon"><i class="fas fa-info-circle"></i></div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Anteprima</div>
+                        <div class="step-icon"><i class="fas fa-eye"></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <form id="bookForm" th:action="@{/book/create}" method="post" enctype="multipart/form-data" th:object="${bookDTO}">
+                <!-- CSRF Token -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                
+                <!-- Step 1: Images -->
+                <div class="form-step active" id="step1">
+                    <div class="step-content">
+                        <div class="step-header">
+                            <h2><i class="fas fa-images"></i> Aggiungi le Immagini del Libro</h2>
+                            <p>Carica la copertina e altre immagini del libro. La prima immagine sarà la copertina principale.</p>
+                        </div>
+
+                        <div class="image-upload-section">
+                            <input type="file" 
+                                   id="imageInput" 
+                                   name="images" 
+                                   multiple 
+                                   accept="image/*"
+                                   style="display: none;" />
+                            
+                            <div class="image-upload-area" id="imageUploadArea" style="cursor: pointer;">
+                                <div class="upload-content">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div class="upload-text">Trascina le immagini qui o clicca per caricare</div>
+                                    <div class="upload-subtext">Fino a 10 immagini • JPG, PNG, WEBP • Max 5MB ciascuna</div>
+                                    
+                                    <button type="button" class="upload-btn" id="uploadButton">
+                                        <i class="fas fa-plus"></i> Scegli File
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Preview delle immagini caricate -->
+                            <div class="images-preview" id="imagesPreview">
+                                <div class="upload-info">
+                                    <span class="image-count">Immagini: <span id="imageCount">0</span>/10</span>
+                                    <span class="total-size">Dimensione: <span id="totalSize">0 MB</span></span>
+                                </div>
+                                <div class="image-preview-grid" id="imagePreviewGrid">
+                                    <!-- Le immagini verranno aggiunte qui dinamicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Book Details -->
+                <div class="form-step" id="step2">
+                    <div class="step-content">
+                        <div class="step-header">
+                            <h2><i class="fas fa-info-circle"></i> Dettagli del Libro</h2>
+                            <p>Inserisci le informazioni complete del libro</p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="title">Titolo *</label>
+                                <input type="text" id="title" th:field="*{title}" class="form-control" 
+                                       placeholder="Inserisci il titolo del libro" required>
+                                <div th:if="${#fields.hasErrors('title')}" class="field-error">
+                                    <span th:errors="*{title}">Errore titolo</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="authorId">Autore *</label>
+                                <select id="authorId" th:field="*{authorId}" class="form-control" required>
+                                    <option value="">Seleziona un autore</option>
+                                    <option th:each="author : ${authors}" 
+                                            th:value="${author.id}" 
+                                            th:text="${author.firstName + ' ' + author.lastName}"
+                                            th:attr="data-birth-year=${author.birthDate != null ? author.birthDate.year : ''}, data-death-year=${author.deathDate != null ? author.deathDate.year : ''}">
+                                        Nome Autore
+                                    </option>
+                                </select>
+                                <div th:if="${#fields.hasErrors('authorId')}" class="field-error">
+                                    <span th:errors="*{authorId}">Errore autore</span>
+                                </div>
+                                <small class="form-text">
+                                    <a href="#" onclick="showAuthorForm()">
+                                        <i class="fas fa-plus"></i> Aggiungi nuovo autore
+                                    </a>
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="publicationYear">Anno di Pubblicazione</label>
+                                <input type="number" id="publicationYear" th:field="*{publicationYear}" 
+                                       class="form-control" min="1000" max="2025" 
+                                       placeholder="Es. 2023">
+                                <div th:if="${#fields.hasErrors('publicationYear')}" class="field-error">
+                                    <span th:errors="*{publicationYear}">Errore anno</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="description">Descrizione</label>
+                                <textarea id="description" th:field="*{description}" 
+                                          class="form-control" rows="6" 
+                                          placeholder="Inserisci una descrizione del libro, la trama, i temi principali..."></textarea>
+                                <div th:if="${#fields.hasErrors('description')}" class="field-error">
+                                    <span th:errors="*{description}">Errore descrizione</span>
+                                </div>
+                                <small class="form-text">Massimo 1000 caratteri</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Preview -->
+                <div class="form-step" id="step3">
+                    <div class="step-content">
+                        <div class="step-header">
+                            <h2><i class="fas fa-eye"></i> Anteprima del Libro</h2>
+                            <p>Controlla i dettagli prima di salvare</p>
+                        </div>
+
+                        <div class="preview-container" id="previewContainer">
+                            <div class="book-preview">
+                                <div class="book-preview-images">
+                                    <img id="previewMainImage" src="" alt="Copertina" style="max-width:200px;display:none;">
+                                    <div id="previewPlaceholder" style="display:flex;align-items:center;justify-content:center;height:200px;background:#f0f0f0;">
+                                        <span>Nessuna immagine</span>
+                                    </div>
+                                    <div id="previewThumbnails"></div>
+                                </div>
+                                <div class="book-preview-details">
+                                    <h3 id="previewTitle">Titolo del libro</h3>
+                                    <p id="previewAuthor">Autore</p>
+                                    <p id="previewYear">Anno non specificato</p>
+                                    <p id="previewDescription">Descrizione del libro...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="form-navigation">
+                    <button type="button" id="prevBtn" class="nav-btn prev-btn">
+                        <i class="fas fa-arrow-left"></i> Indietro
+                    </button>
+                    <button type="button" id="nextBtn" class="nav-btn next-btn">
+                        Avanti <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="button" id="submitBtn" class="nav-btn submit-btn" style="display: none;">
+    <i class="fas fa-save"></i> Salva Libro
+    <span class="btn-loading" style="display:none;margin-left:8px;">
+        <i class="fas fa-spinner fa-spin"></i>
+    </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Torna su">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Include the JavaScript files -->
+    <script th:src="@{/js/book-create.js}"></script>
+</body>
+</html>

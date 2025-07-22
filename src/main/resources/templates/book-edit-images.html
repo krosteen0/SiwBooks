@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="'Gestisci Immagini - ' + ${book?.title ?: 'Libro'} + ' - Biblioteca Sitarello'">Gestisci Immagini Libro - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/book-edit-images.css}" />
+    
+    <meta name="description" th:content="'Gestisci le immagini di ' + ${book?.title ?: 'questo libro'} + ' nella biblioteca di Sitarello'">
+</head>
+<body class="book-edit-images-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">
+                    <i class="fas fa-images"></i>
+                    Gestisci Immagini
+                </span>  
+            </h1>
+            <p class="hero-subtitle" th:text="'Gestisci le immagini di: ' + ${book?.title ?: 'Libro'}">
+                Gestisci le immagini del libro
+            </p>
+        </div>
+    </section>
+    
+    <main class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span>/</span>
+            <a th:href="@{/book}">
+                <i class="fas fa-book"></i> Biblioteca
+            </a>
+            <span>/</span>
+            <a th:href="@{'/book/details/' + ${book?.id}}" th:text="${book?.title ?: 'Libro'}">Libro</a>
+            <span>/</span>
+            <a th:href="@{'/book/edit/' + ${book?.id}}">Modifica</a>
+            <span>/</span>
+            <span>Immagini</span>
+        </div>
+        
+        <!-- Edit Header Section -->
+        <section class="edit-header-section">
+            <div class="edit-header-container">
+                <div class="edit-header-info">
+                    <h1>
+                        <i class="fas fa-images"></i>
+                        Gestisci Immagini Libro
+                    </h1>
+                    <p th:text="'Libro: ' + ${book?.title ?: 'Nuovo libro'}">Gestisci immagini</p>
+                </div>
+                <div class="edit-header-actions">
+                    <a th:href="@{'/book/edit/' + ${book?.id}}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Torna alla Modifica
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- Alert Messages -->
+        <div class="alert-container">
+            <div th:if="${param.success}" class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <span th:switch="${param.success[0]}">
+                    <span th:case="upload">Immagini caricate con successo!</span>
+                    <span th:case="delete">Immagine eliminata con successo!</span>
+                    <span th:case="*">Operazione completata con successo!</span>
+                </span>
+                <button type="button" class="alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:switch="${param.error[0]}">
+                    <span th:case="filesize">Errore: File troppo grande (max 5MB)</span>
+                    <span th:case="filetype">Errore: Tipo di file non supportato (solo JPG, JPEG, PNG, GIF)</span>
+                    <span th:case="upload">Errore durante il caricamento delle immagini</span>
+                    <span th:case="delete">Errore durante l'eliminazione dell'immagine</span>
+                    <span th:case="*">Si è verificato un errore durante l'operazione</span>
+                </span>
+                <button type="button" class="alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Images Management Section -->
+        <div class="images-management-container">
+            <!-- Prima riga: Immagini attuali + Carica nuove immagini -->
+            <div class="images-management-row">
+                <!-- Current Images -->
+                <div class="current-images-section">
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <h2>
+                                <i class="fas fa-images"></i>
+                                Immagini Attuali
+                                <span class="image-count" th:text="${book?.images?.size() ?: 0}">0</span>
+                            </h2>
+                        </div>
+                        <div class="form-card-body">
+                            <div th:if="${book?.images?.empty}" class="no-images-placeholder">
+                                <i class="fas fa-image"></i>
+                                <h4>Nessuna immagine caricata</h4>
+                                <p>Utilizza il modulo qui a fianco per caricare le prime immagini del libro.</p>
+                            </div>
+                            
+                            <div th:if="!${book?.images?.empty}" class="images-grid">
+                                <div th:each="image, iterStat : ${book.images}" class="image-card">
+                                    <div class="image-wrapper">
+                                        <img th:src="@{'/book/image/' + ${image.id}}" 
+                                             th:alt="'Immagine ' + ${iterStat.count} + ' del libro ' + ${book.title}"
+                                             class="image-preview" />
+                                        <div class="image-overlay">
+                                            <button type="button" 
+                                                    class="btn-delete-image"
+                                                    th:data-image-id="${image.id}"
+                                                    th:data-book-id="${book.id}"
+                                                    title="Elimina immagine">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="image-info">
+                                        <span class="image-number">
+                                            <i class="fas fa-info-circle"></i>
+                                            Immagine <span th:text="${iterStat.count}">1</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Form -->
+                <div class="upload-section">
+                    <div class="form-card">
+                        <div class="form-card-header" style="background: linear-gradient(135deg, #48BB78, #38A169);">
+                            <h2>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Carica Nuove Immagini
+                            </h2>
+                        </div>
+                        <div class="form-card-body">
+                            <form id="uploadForm" 
+                                  th:action="@{'/book/edit/' + ${book.id} + '/images'}" 
+                                  method="post" 
+                                  enctype="multipart/form-data"
+                                  class="upload-form">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                
+                                <div class="form-group">
+                                    <label for="imageFiles" class="form-label">
+                                        <i class="fas fa-file-image"></i>
+                                        Seleziona Immagini
+                                    </label>
+                                    <input type="file" 
+                                           class="form-input file-input" 
+                                           id="imageFiles" 
+                                           name="imageFiles" 
+                                           accept="image/*" 
+                                           multiple 
+                                           required>
+                                    <div class="form-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        <div class="help-text">
+                                            <div>Formati supportati: JPG, JPEG, PNG, GIF</div>
+                                            <div>Dimensione max: 5MB per file</div>
+                                            <div>Puoi selezionare più file insieme</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Preview Area -->
+                                <div id="previewArea" class="preview-area" style="display: none;">
+                                    <label class="form-label">
+                                        <i class="fas fa-eye"></i>
+                                        Anteprima
+                                    </label>
+                                    <div id="previewContainer" class="preview-container"></div>
+                                </div>
+
+                                <div class="upload-actions">
+                                    <button type="submit" id="uploadBtn" class="btn btn-success" disabled>
+                                        <i class="fas fa-upload"></i>
+                                        Carica Immagini
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seconda riga: Linee guida che occupa tutta la larghezza -->
+            <div class="guidelines-row">
+                <div class="guidelines-section">
+                    <div class="form-card">
+                        <div class="form-card-header" style="background: linear-gradient(135deg, #DAA520, #B8860B);">
+                            <h2>
+                                <i class="fas fa-lightbulb"></i>
+                                Linee Guida per le Immagini
+                            </h2>
+                        </div>
+                        <div class="form-card-body">
+                            <ul class="guidelines-list">
+                                <li>
+                                    <i class="fas fa-check"></i>
+                                    Usa immagini di alta qualità per copertine
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i>
+                                    Formato ideale: 300x400px o superiore
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i>
+                                    Prima immagine sarà usata come copertina principale
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i>
+                                    Evita immagini con copyright
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="delete-modal" id="deleteModal" style="display: none;">
+        <div class="modal-overlay" onclick="hideDeleteModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Conferma Eliminazione
+                </h3>
+                <button type="button" class="modal-close" onclick="hideDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare questa immagine?</p>
+                <p class="modal-warning">Questa azione non può essere annullata.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" onclick="hideDeleteModal()">
+                    <i class="fas fa-times"></i>
+                    Annulla
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i>
+                    Elimina
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Torna su">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    
+    <!-- Custom JavaScript -->
+    <script th:src="@{/js/book-edit-images.js}"></script>
+</body>
+</html>

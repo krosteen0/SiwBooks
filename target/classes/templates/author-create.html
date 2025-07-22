@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Crea Nuovo Autore - Biblioteca Sitarello</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/author-create.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Crea e pubblica un nuovo autore su Sitarello">
+</head>
+<body>
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Creazione Autore</span>  
+            </h1>
+            <p class="hero-subtitle">Aggiungi un nuovo autore alla collezione di Aeternum</p>
+        </div>
+    </section>
+
+    <main class="product-create-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span>/</span>
+            <a th:href="@{/authors}">
+                <i class="fas fa-users"></i> Autori
+            </a>
+            <span>/</span>
+            <span>Nuovo Autore</span>
+        </div>
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <h2 class="progress-title">Progresso Creazione</h2>
+                <div class="auto-save-indicator">
+                    <i class="fas fa-save"></i>
+                    <span id="autoSaveStatus">Salvato automaticamente</span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-line" id="progressLine"></div>
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Informazioni</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Biografia</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Anteprima</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        <div class="error-banner" id="errorBanner" style="display: none;">
+            <div class="error-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span class="error-message" id="errorMessage"></span>
+                <button class="error-close" id="errorCloseBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Banner -->
+        <div class="success-banner" id="successBanner" style="display: none;">
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <span class="success-message" id="successMessage"></span>
+            </div>
+        </div>
+
+        <!-- Author Creation Form -->
+        <form id="authorForm" th:action="@{/author/create}" method="post" th:object="${authorDTO}" enctype="multipart/form-data">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <!-- Step 1: Author Information -->
+            <div class="form-step active" id="step1">
+                <div class="step-content">
+                    <h2 class="step-title">
+                        <i class="fas fa-user"></i>
+                        Informazioni Autore
+                    </h2>
+                    <p class="step-description">Inserisci le informazioni principali dell'autore</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Nome *
+                            </label>
+                            <input type="text" 
+                                   id="firstName" 
+                                   th:field="*{firstName}" 
+                                   class="form-input" 
+                                   placeholder="Inserisci il nome dell'autore"
+                                   required
+                                   autocomplete="given-name">
+                            <div class="input-help">Il nome dell'autore</div>
+                            <div class="error-text" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Cognome *
+                            </label>
+                            <input type="text" 
+                                   id="lastName" 
+                                   th:field="*{lastName}" 
+                                   class="form-input" 
+                                   placeholder="Inserisci il cognome dell'autore"
+                                   required
+                                   autocomplete="family-name">
+                            <div class="input-help">Il cognome dell'autore</div>
+                            <div class="error-text" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate" class="form-label">
+                                <i class="fas fa-calendar-alt"></i>
+                                Data di Nascita
+                            </label>
+                            <input type="date" 
+                                   id="birthDate" 
+                                   th:field="*{birthDate}" 
+                                   class="form-input">
+                            <div class="input-help">Data di nascita dell'autore</div>
+                            <div class="error-text" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deathDate" class="form-label">
+                                <i class="fas fa-calendar-times"></i>
+                                Data di Morte
+                            </label>
+                            <input type="date" 
+                                   id="deathDate" 
+                                   th:field="*{deathDate}" 
+                                   class="form-input">
+                            <div class="input-help">Lascia vuoto se l'autore è ancora in vita</div>
+                            <div class="error-text" th:if="${#fields.hasErrors('deathDate')}" th:errors="*{deathDate}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nationality" class="form-label">
+                                <i class="fas fa-globe"></i>
+                                Nazionalità
+                            </label>
+                            <select id="nationality" 
+                                    th:field="*{nationality}" 
+                                    class="form-select">
+                                <option value="">Seleziona una nazionalità</option>
+                                <option value="Italiana">Italiana</option>
+                                <option value="Americana">Americana</option>
+                                <option value="Inglese">Inglese</option>
+                                <option value="Francese">Francese</option>
+                                <option value="Tedesca">Tedesca</option>
+                                <option value="Spagnola">Spagnola</option>
+                                <option value="Portoghese">Portoghese</option>
+                                <option value="Russa">Russa</option>
+                                <option value="Giapponese">Giapponese</option>
+                                <option value="Cinese">Cinese</option>
+                                <option value="Indiana">Indiana</option>
+                                <option value="Brasiliana">Brasiliana</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="Messicana">Messicana</option>
+                                <option value="Canadese">Canadese</option>
+                                <option value="Australiana">Australiana</option>
+                                <option value="Sudafricana">Sudafricana</option>
+                                <option value="Olandese">Olandese</option>
+                                <option value="Belga">Belga</option>
+                                <option value="Svizzera">Svizzera</option>
+                                <option value="Austriaca">Austriaca</option>
+                                <option value="Svedese">Svedese</option>
+                                <option value="Norvegese">Norvegese</option>
+                                <option value="Danese">Danese</option>
+                                <option value="Finlandese">Finlandese</option>
+                                <option value="Polacca">Polacca</option>
+                                <option value="Ceca">Ceca</option>
+                                <option value="Ungherese">Ungherese</option>
+                                <option value="Romena">Romena</option>
+                                <option value="Bulgara">Bulgara</option>
+                                <option value="Greca">Greca</option>
+                                <option value="Turca">Turca</option>
+                                <option value="Israeliana">Israeliana</option>
+                                <option value="Egiziana">Egiziana</option>
+                                <option value="Marocchina">Marocchina</option>
+                                <option value="Nigeriana">Nigeriana</option>
+                                <option value="Keniota">Keniota</option>
+                                <option value="Coreana">Coreana</option>
+                                <option value="Thailandese">Thailandese</option>
+                                <option value="Vietnamita">Vietnamita</option>
+                                <option value="Filippina">Filippina</option>
+                                <option value="Indonesiana">Indonesiana</option>
+                                <option value="Malese">Malese</option>
+                                <option value="Singaporiana">Singaporiana</option>
+                                <option value="Neozelandese">Neozelandese</option>
+                                <option value="Cilena">Cilena</option>
+                                <option value="Peruviana">Peruviana</option>
+                                <option value="Colombiana">Colombiana</option>
+                                <option value="Venezuelana">Venezuelana</option>
+                                <option value="Ecuadoriana">Ecuadoriana</option>
+                                <option value="Uruguaiana">Uruguaiana</option>
+                                <option value="Paraguaiana">Paraguaiana</option>
+                                <option value="Boliviana">Boliviana</option>
+                                <option value="Altra">Altra</option>
+                            </select>
+                            <div class="input-help">Nazionalità dell'autore</div>
+                            <div class="error-text" th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Biography -->
+            <div class="form-step" id="step2">
+                <div class="step-content">
+                    <h2 class="step-title">
+                        <i class="fas fa-book-open"></i>
+                        Biografia
+                    </h2>
+                    <p class="step-description">Aggiungi una biografia dell'autore</p>
+
+                    <div class="form-group">
+                        <label for="biography" class="form-label">
+                            <i class="fas fa-align-left"></i>
+                            Biografia dell'Autore
+                        </label>
+                        <textarea id="biography" 
+                                  th:field="*{biography}" 
+                                  class="form-textarea" 
+                                  rows="10"
+                                  placeholder="Scrivi una biografia dell'autore, inclusi i suoi lavori principali, premi ricevuti e altre informazioni rilevanti..."></textarea>
+                        <div class="character-counter">
+                            <span id="bioCharCount">0</span> / 2000 caratteri
+                        </div>
+                        <div class="input-help">Una biografia dettagliata aiuta i lettori a conoscere meglio l'autore</div>
+                        <div class="error-text" th:if="${#fields.hasErrors('biography')}" th:errors="*{biography}"></div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="form-group">
+                        <label for="photoFile" class="form-label">
+                            <i class="fas fa-image"></i>
+                            Foto dell'Autore
+                        </label>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>Carica una foto dell'autore</h3>
+                                <p>Trascina un'immagine qui o clicca per selezionare</p>
+                                <span class="upload-formats">JPG, PNG, GIF fino a 5MB</span>
+                            </div>
+                            <input type="file" 
+                                   id="photoFile" 
+                                   name="photoFile" 
+                                   accept="image/*" 
+                                   class="file-input">
+                        </div>
+                        <div id="imagePreview" class="image-preview" style="display: none;">
+                            <img id="previewImg" src="" alt="Anteprima">
+                            <button type="button" class="remove-image" id="removeImageBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Preview -->
+            <div class="form-step" id="step3">
+                <div class="step-content">
+                    <h2 class="step-title">
+                        <i class="fas fa-eye"></i>
+                        Anteprima Autore
+                    </h2>
+                    <p class="step-description">Controlla i dati inseriti prima di salvare</p>
+
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <div class="preview-image">
+                                <img id="previewAuthorImage" src="/immagini/default-author.jpg" alt="Foto autore">
+                            </div>
+                            <div class="preview-info">
+                                <h3 id="previewName">Nome Autore</h3>
+                                <p class="preview-dates">
+                                    <span id="previewBirthDate"></span>
+                                    <span id="previewDeathDate"></span>
+                                </p>
+                                <p class="preview-nationality" id="previewNationality"></p>
+                            </div>
+                        </div>
+                        <div class="preview-biography">
+                            <h4>Biografia</h4>
+                            <p id="previewBiography">Nessuna biografia inserita</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="previewPrevBtn">
+                            <i class="fas fa-arrow-left"></i>
+                            Indietro
+                        </button>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i>
+                            <span>Crea Autore</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation" id="formNavigation">
+                <button type="button" class="btn-secondary" id="prevBtn" style="display: none;">
+                    <i class="fas fa-arrow-left"></i>
+                    Indietro
+                </button>
+                <button type="button" class="btn-primary" id="nextBtn">
+                    Avanti
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <div th:insert="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/author-create.js}"></script>
+</body>
+</html>

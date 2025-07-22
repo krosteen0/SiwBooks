@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Siamo - Libreria Aeternum</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/about.css}" />
+
+    <meta name="description" content="Scopri di più sulla Libreria Aeternum, la nostra missione e la community di appassionati di lettura">
+</head>
+<body class="about-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Noi</span>  
+            </h1>
+            <p class="hero-subtitle">Scopri la storia, la missione e i valori che guidano la Libreria Aeternum</p>
+        </div>
+    </section>
+    
+    <main class="container">        
+        <section class="about-content">
+            <div class="about-section">
+                <h2>Benvenuti in Aeternum</h2>
+                <p>
+                    Aeternum è una piattaforma online dedicata alla gestione e condivisione di libri e prodotti. 
+                    Il nostro obiettivo è creare uno spazio digitale dove gli appassionati di lettura possano 
+                    scoprire nuovi titoli, condividere recensioni e gestire le proprie collezioni.
+                </p>
+            </div>
+            
+            <div class="about-section">
+                <h2><i class="fas fa-book"></i> La Nostra Biblioteca</h2>
+                <p>
+                    La nostra biblioteca digitale contiene una vasta collezione di libri di diversi generi e autori. 
+                    Ogni libro è catalogato con informazioni dettagliate e può essere recensito dagli utenti registrati.
+                </p>
+            </div>
+            
+            <div class="about-section">
+                <h2><i class="fas fa-users"></i> Community</h2>
+                <p>
+                    Aeternum non è solo una piattaforma, è una community di appassionati. Gli utenti possono:
+                </p>
+                <ul>
+                    <li>Lasciare recensioni e valutazioni</li>
+                    <li>Creare e gestire i propri profili</li>
+                    <li>Condividere le proprie collezioni</li>
+                    <li>Scoprire nuovi contenuti attraverso le raccomandazioni</li>
+                </ul>
+            </div>
+            
+            <div class="about-section">
+                <h2><i class="fas fa-lightbulb"></i> La Nostra Missione</h2>
+                <p>
+                    Crediamo nel potere della condivisione della conoscenza e nella passione per la lettura. 
+                    La nostra missione è fornire una piattaforma facile da usare, sicura e coinvolgente 
+                    per tutti gli amanti dei libri e del commercio online.
+                </p>
+            </div>
+        </section>
+        
+        <section class="cta-section">
+            <h2>Unisciti a Noi!</h2>
+            <p>Inizia la tua avventura con Aeternum oggi stesso.</p>
+            <div class="cta-buttons">
+                <a th:href="@{/book}" class="btn btn-outline">
+                    <i class="fas fa-book"></i> Esplora i nostri libri
+                </a>
+                <a th:href="@{/author}" class="btn btn-outline">
+                    <i class="fas fa-book"></i> Esplora i nostri autori
+                </a>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

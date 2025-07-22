@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Errore - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/error.css}" />
+
+    <meta name="description" content="Pagina di errore - Biblioteca Sitarello">
+</head>
+<body class="error-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Errore
+            </h1>
+            <p class="hero-subtitle">
+                Si è verificato un problema. Di seguito i dettagli dell'errore
+            </p>
+        </div>
+    </section>
+    <main class="container">
+        <div class="error">
+            <div class="error-container">
+                <h3 class="error-title">🚨 Errore nell'applicazione</h3>
+                
+                <div class="error-detail">
+                    <span class="error-label">Errore:</span>
+                    <span th:if="${error}" class="error-value" th:text="${error}">Errore sconosciuto</span>
+                    <span th:unless="${error}" class="error-value missing">Nessun tipo di errore specificato</span>
+                </div>
+                
+                <div class="error-detail" th:if="${status}">
+                    <span class="error-label">Codice Status HTTP:</span>
+                    <span class="error-value" th:text="${status}">500</span>
+                </div>
+                
+                <div class="error-detail">
+                    <span class="error-label">Messaggio:</span>
+                    <span th:if="${message}" class="error-value" th:text="${message}">Si è verificato un errore imprevisto.</span>
+                    <span th:unless="${message}" class="error-value missing">Nessun messaggio di errore disponibile</span>
+                </div>
+                
+                <div class="error-detail" th:if="${path}">
+                    <span class="error-label">Percorso richiesto:</span>
+                    <span class="error-value" th:text="${path}">N/A</span>
+                </div>
+                
+                <div class="error-detail" th:if="${exception}">
+                    <span class="error-label">Tipo Eccezione:</span>
+                    <span class="error-value" th:text="${exception}">N/A</span>
+                </div>
+                
+                <!-- Mostra sempre timestamp e informazioni di debug -->
+                <div class="error-detail error-meta">
+                    <span class="error-label">Timestamp:</span>
+                    <span class="error-value" th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm:ss')}">N/A</span>
+                </div>
+                
+                <!-- Informazioni sulla richiesta -->
+                <div class="error-detail error-meta" th:if="${method}">
+                    <span class="error-label">Metodo HTTP:</span>
+                    <span class="error-value" th:text="${method}">N/A</span>
+                </div>
+                
+                <div class="error-detail error-meta" th:if="${queryString}">
+                    <span class="error-label">Parametri Query:</span>
+                    <span class="error-value" th:text="${queryString}">N/A</span>
+                </div>
+            </div>
+            
+            <!-- Dettagli tecnici solo in modalità sviluppo -->
+            <div th:if="${trace}" class="technical-details">
+                <details>
+                    <summary class="technical-summary">🔍 Dettagli Tecnici (Clicca per espandere)</summary>
+                    <div class="technical-content">
+                        <pre class="technical-trace" th:text="${trace}"></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <!-- Debug info quando non c'è trace -->
+            <div th:unless="${trace}" class="debug-info">
+                <h4 class="debug-title">🔧 Informazioni di Debug</h4>
+                <p><strong>Stato della richiesta:</strong> Errore rilevato ma stack trace non disponibile</p>
+                <p><strong>Possibili cause:</strong></p>
+                <ul>
+                    <li>Errore di validazione dei dati</li>
+                    <li>Problema di connessione al database</li>
+                    <li>Errore nella logica di business</li>
+                    <li>Problema di configurazione</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="navigation-buttons">
+            <a th:href="@{/}" class="button">Torna alla Home</a>
+            <a th:href="@{/users/products}" class="button secondary" th:if="${isAuthenticated}">I Miei Prodotti</a>
+        </div>
+    </main>
+    
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+    
+    <script th:src="@{/js/error.js}"></script>
+</body>
+</html>
+
+

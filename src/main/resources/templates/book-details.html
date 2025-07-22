@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${book != null ? book.title + ' - Biblioteca Sitarello' : 'Dettagli Libro - Biblioteca Sitarello'}">Dettagli Libro - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/css/book-details.css}" />
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    
+    <meta name="description" th:content="${book != null ? 'Scopri ' + book.title + ' nella biblioteca di Sitarello' : 'Dettagli del libro nella biblioteca di Sitarello'}">
+</head>
+<body class="book-details-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Error state if book is null -->
+    <div th:if="${book == null}" class="error-container">
+        <section class="hero-section">
+            <div class="hero-container">
+                <h1 class="hero-title">
+                    <span class="title-main">Libro Non Trovato</span>  
+                </h1>
+                <p class="hero-subtitle">Il libro richiesto non è disponibile</p>
+            </div>
+        </section>
+        
+        <main class="container">
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Libro non trovato</h3>
+                <p>Il libro richiesto non esiste o è stato rimosso dal nostro catalogo.</p>
+                <a th:href="@{/book}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-arrow-left"></i>
+                    Torna alla Biblioteca
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Book content - only show if book exists -->
+    <div th:if="${book != null}">
+        <!-- Page Header -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <h1 class="hero-title">
+                    <span class="title-main" th:text="${book.title}">Titolo del Libro</span>  
+                </h1>
+                <p class="hero-subtitle" th:if="${book.authors != null && !book.authors.isEmpty()}" 
+                   th:text="'di ' + ${book.authorsAsString}">di Autore</p>
+                <p class="hero-subtitle" th:unless="${book.authors != null && !book.authors.isEmpty()}">
+                    Autore non specificato
+                </p>
+            </div>
+        </section>
+        
+        <main class="container">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a th:href="@{/}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <span>/</span>
+                <a th:href="@{/book}">
+                    <i class="fas fa-book"></i> Libri
+                </a>
+                <span>/</span>
+                <span th:text="${book.title}">Dettagli Libro</span>
+            </div>
+            
+            <!-- Book Details Section -->
+            <section class="book-details-section">
+                <div class="book-details-container">
+                    <!-- Book Cover -->
+                    <div class="book-cover-section">
+                        <div class="book-cover-wrapper">
+                            <img th:if="${book.coverImage != null}" 
+                                 th:src="@{'/book/cover/' + ${book.id}}" 
+                                 th:alt="${book.title}"
+                                 class="book-cover-large" />
+                            <img th:unless="${book.coverImage != null}" 
+                                 th:if="${book.images != null && !book.images.isEmpty()}" 
+                                 th:src="@{'/book/image/' + ${book.images[0].id}}" 
+                                 th:alt="${book.title}"
+                                 class="book-cover-large" />
+                            <div th:unless="${book.coverImage != null || (book.images != null && !book.images.isEmpty())}" 
+                                 class="book-cover-placeholder">
+                                <i class="fas fa-book"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Images -->
+                        <div class="additional-images" th:if="${book.images != null and book.images.size() > 1}">
+                            <h4><i class="fas fa-images"></i> Altre Immagini</h4>
+                            <div class="images-grid">
+                                <div class="image-item" th:each="image, iterStat : ${book.images}" th:if="${iterStat.index > 0 or book.coverImage == null}">
+                                    <img th:src="@{'/book/image/' + ${image.id}}" 
+                                         th:alt="${book.title}"
+                                         class="additional-image"
+                                         onclick="openImageModal(this.src)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Book Information -->
+                    <div class="book-info-section">
+                        <div class="book-metadata">
+                            <div class="metadata-grid">
+                                <div class="metadata-item" th:if="${book.authors != null && !book.authors.isEmpty()}">
+                                    <span class="metadata-label">
+                                        <i class="fas fa-user"></i>
+                                        Autore
+                                    </span>
+                                    <span class="metadata-value">
+                                        <span th:each="author, iterStat : ${book.authors}">
+                                            <a th:href="@{'/author/details/' + ${author.id}}" 
+                                               class="author-link"
+                                               th:text="${author.firstName + ' ' + author.lastName}">Nome Autore</a>
+                                            <span th:if="!${iterStat.last}">, </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                
+                                <div class="metadata-item" th:if="${book.publicationYear != null}">
+                                    <span class="metadata-label">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Anno di Pubblicazione
+                                    </span>
+                                    <span class="metadata-value" th:text="${book.publicationYear}">2024</span>
+                                </div>
+                                
+                                <div class="metadata-item">
+                                    <span class="metadata-label">
+                                        <i class="fas fa-comments"></i>
+                                        Valutazione
+                                    </span>
+                                    <div class="metadata-value">
+                                        <div class="rating-display" th:if="${averageRating != null and averageRating > 0}">
+                                            <div class="stars">
+                                                <i th:class="${averageRating >= 1 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                                <i th:class="${averageRating >= 2 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                                <i th:class="${averageRating >= 3 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                                <i th:class="${averageRating >= 4 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                                <i th:class="${averageRating >= 5 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                            </div>
+                                            <span class="rating-text">
+                                                <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.5</span>/5
+                                                (<span th:text="${reviewCount}">10</span> recensioni)
+                                            </span>
+                                        </div>
+                                        <div th:unless="${averageRating != null and averageRating > 0}" class="no-rating">
+                                            <span>Nessuna valutazione disponibile</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Book Description -->
+                        <div class="book-description" th:if="${book.description != null and !book.description.isEmpty()}">
+                            <h3><i class="fas fa-align-left"></i> Descrizione</h3>
+                            <p th:text="${book.description}">Descrizione del libro...</p>
+                        </div>
+                        
+                        <!-- Book Actions -->
+                        <div class="book-actions">
+                            
+                            <!-- Admin Actions -->
+                            <div th:if="${isAdmin or isSuperAdmin}" class="admin-actions">
+                                <a th:href="@{'/book/edit/' + ${book.id}}" class="btn btn-secondary btn-sm admin-edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Modifica</span>
+                                </a>
+                                <form th:action="@{'/book/delete/' + ${book.id}}" method="post" 
+                                      style="display: inline;" 
+                                      onsubmit="return confirm('Sei sicuro di voler eliminare questo libro?')">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                        <span>Elimina</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Reviews Summary -->
+            <section class="reviews-summary-section">
+                <div class="reviews-summary-container">
+                    <h3><i class="fas fa-comments"></i> Recensioni</h3>
+                    <div class="reviews-stats" th:if="${reviewCount != null and reviewCount > 0}">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number" th:text="${reviewCount}">0</span>
+                                <span class="stat-label">Recensioni</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">0.0</span>
+                                <span class="stat-label">Valutazione Media</span>
+                            </div>
+                        </div>
+                        <a th:href="@{'/reviews/book/' + ${book.id}}" class="reviews-link">
+                            <i class="fas fa-external-link-alt "></i>
+                            Leggi tutte le recensioni
+                        </a>
+                    </div>
+                    <div class="no-reviews" th:unless="${reviewCount != null and reviewCount > 0}">
+                        <p>Nessuna recensione disponibile per questo libro.</p>
+                        <a th:href="@{'/reviews/book/' + ${book.id}}" class="reviews-link">
+                            <i class="fas fa-plus"></i>
+                            Scrivi la prima recensione
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Torna su">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    
+    <!-- Modal for images -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeImageModal()">&times;</span>
+            <img id="modalImage" src="" alt="">
+        </div>
+    </div>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Back to top button functionality
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            if (backToTopBtn) {
+                backToTopBtn.addEventListener('click', function() {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+            
+            // Enhanced image interactions
+            const additionalImages = document.querySelectorAll('.additional-image');
+            additionalImages.forEach(img => {
+                img.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                img.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // Smooth scrolling for anchor links
+            const anchorLinks = document.querySelectorAll('a[href^="#"]');
+            anchorLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+        
+        // Image modal functionality
+        function openImageModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = src;
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Review form functionality (placeholder)
+        function showReviewForm() {
+            // This would show a review form modal or redirect to review page
+            // For now, we'll redirect to the reviews page
+            window.location.href = '/reviews/book/' + window.location.pathname.split('/').pop() + '/create';
+        }
+    </script>
+</body>
+</html>

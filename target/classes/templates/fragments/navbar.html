@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Navbar Fragment</title>
+</head>
+<body>
+    <!-- Modern Navbar Fragment -->
+    <header th:fragment="navbar">
+        <nav class="navbar">
+            <div class="navbar-container">
+                <!-- Brand/Logo - Left Side -->
+                <div class="navbar-left">
+                    <a th:href="@{/}" class="navbar-brand">
+                        <i class="fas fa-book-open"></i>
+                        <span>Libreria Aeternum</span>
+                    </a>
+                </div>
+                
+                <!-- Right Side Content -->
+                <div class="navbar-right">
+                    <!-- Navigation Links -->
+                    <ul class="navbar-nav">
+                        <!-- Admin Links -->
+                        <li th:if="${isAdmin or isSuperAdmin}">
+                            <a th:href="@{/book/create}" class="nav-link admin-link">Aggiungi Libro</a>
+                        </li>
+                        <li th:if="${isAdmin or isSuperAdmin}">
+                            <a th:href="@{/author/create}" class="nav-link admin-link">Aggiungi Autore</a>
+                        </li>
+                        <li th:if="${isSuperAdmin}">
+                            <a th:href="@{/admin/users}" class="nav-link super-admin-link">Gestione Utenti</a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Admin Dropdown (shown on smaller screens) -->
+                    <div class="admin-dropdown" th:if="${isAdmin or isSuperAdmin}">
+                        <button class="admin-dropdown-toggle" onclick="toggleAdminDropdown()">
+                            <i class="fas fa-cog"></i>
+                            Admin
+                            <span class="admin-count-badge" 
+                                  th:text="${(isAdmin ? 2 : 0) + (isSuperAdmin ? 1 : 0)}">3</span>
+                        </button>
+                        <div class="admin-dropdown-menu">
+                            <a th:href="@{/book/create}" class="admin-dropdown-item" th:if="${isAdmin or isSuperAdmin}">
+                                <i class="fas fa-plus-circle"></i>
+                                Aggiungi Libro
+                            </a>
+                            <a th:href="@{/author/create}" class="admin-dropdown-item" th:if="${isAdmin or isSuperAdmin}">
+                                <i class="fas fa-user-plus"></i>
+                                Aggiungi Autore
+                            </a>
+                            <a th:href="@{/admin/users}" class="admin-dropdown-item super-admin" th:if="${isSuperAdmin}">
+                                <i class="fas fa-users-cog"></i>
+                                Gestione Utenti
+                            </a>
+                        </div>
+                    </div>
+            
+                
+                <!-- User Actions -->
+                <div class="navbar-actions">
+                    <!-- Authenticated User -->
+                    <div th:if="${isAuthenticated}" class="user-dropdown">
+                        <button class="user-toggle">
+                            <div class="user-avatar" th:text="${username?.substring(0,1)?.toUpperCase()}">U</div>
+                            <span th:text="${username}">Utente</span>
+                            <span th:if="${isSuperAdmin}" class="admin-badge super-admin-badge">Super Admin</span>
+                            <span th:if="${isAdmin and !isSuperAdmin}" class="admin-badge">Admin</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown-menu">
+                            <a th:href="@{/users/profile}" class="dropdown-item">
+                                <i class="fas fa-user"></i> Profilo
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form th:action="@{/logout}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Non-authenticated User -->
+                    <div th:unless="${isAuthenticated}">
+                        <a th:href="@{/users/login}" class="btn btn-outline auth-btn">Accedi</a>
+                        <a th:href="@{/users/register}" class="btn btn-primary auth-btn">Registrati</a>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-nav-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                </div> <!-- Close navbar-right -->
+            </div>
+        </nav>
+    </header>
+    
+    <script>
+        function toggleAdminDropdown() {
+            const dropdown = document.querySelector('.admin-dropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.admin-dropdown');
+            const toggle = document.querySelector('.admin-dropdown-toggle');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Prevent dropdown from closing when clicking inside the menu
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.admin-dropdown-menu')) {
+                event.stopPropagation();
+            }
+        });
+        
+        // Enhanced search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.querySelector('#navbarSearchForm');
+            const searchInput = document.querySelector('#navbarSearchInput');
+            const searchBtn = document.querySelector('.navbar-search-btn');
+            
+            if (searchForm && searchInput) {
+                // Determine search context from current URL
+                const currentPath = window.location.pathname || '';
+                const isBookPage = currentPath === '/book' || currentPath.startsWith('/book/');
+                const isAuthorPage = currentPath === '/author' || currentPath.startsWith('/author/');
+                
+                // Handle form submission
+                searchForm.addEventListener('submit', function(e) {
+                    const query = searchInput.value.trim();
+                    if (!query) {
+                        e.preventDefault();
+                        searchInput.focus();
+                        return;
+                    }
+                    
+                    // Add loading state
+                    if (searchBtn) {
+                        searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        searchInput.disabled = true;
+                        searchBtn.disabled = true;
+                    }
+                });
+                
+                // Context-aware placeholder behavior
+                let placeholderIndex = 0;
+                let placeholders;
+                
+                if (isBookPage) {
+                    placeholders = [
+                        'Cerca libri...',
+                        'Es: "Il nome della rosa"',
+                        'Es: "1984"',
+                        'Inserisci il titolo...'
+                    ];
+                } else if (isAuthorPage) {
+                    placeholders = [
+                        'Cerca autori...',
+                        'Es: "Eco"',
+                        'Es: "Orwell"',
+                        'Inserisci cognome...'
+                    ];
+                }
+                
+                if (placeholders) {
+                    searchInput.addEventListener('focus', function() {
+                        if (this.value === '') {
+                            this.placeholder = placeholders[0];
+                        }
+                    });
+                    
+                    searchInput.addEventListener('blur', function() {
+                        if (this.value === '') {
+                            placeholderIndex = (placeholderIndex + 1) % placeholders.length;
+                            this.placeholder = placeholders[placeholderIndex];
+                        }
+                    });
+                }
+                
+                // Search suggestions (basic implementation)
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.trim();
+                    if (query.length > 2) {
+                        // Add visual feedback
+                        this.style.background = 'rgba(255, 255, 255, 0.15)';
+                    } else {
+                        this.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function(e) {
+                    // Ctrl/Cmd + K to focus search (only if search is visible)
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k' && (isBookPage || isAuthorPage)) {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                    
+                    // Escape to blur search
+                    if (e.key === 'Escape' && document.activeElement === searchInput) {
+                        searchInput.blur();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

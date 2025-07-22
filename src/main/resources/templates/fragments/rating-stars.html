@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <!-- Frammento per visualizzare le stelle di rating -->
+    <div th:fragment="rating-stars(rating, count)" class="star-rating">
+        <span th:each="i : ${#numbers.sequence(1, 5)}">
+            <span th:if="${i <= rating}" class="filled">★</span>
+            <span th:if="${i > rating}" class="empty">☆</span>
+        </span>
+        <span th:if="${count != null and count > 0}" class="rating-count">
+            (<span th:text="${count}">0</span>)
+        </span>
+    </div>
+    
+    <!-- Frammento per visualizzare le stelle di rating solo con il punteggio -->
+    <div th:fragment="simple-rating(rating)" class="star-rating">
+        <span th:each="i : ${#numbers.sequence(1, 5)}">
+            <span th:if="${i <= rating}" class="filled">★</span>
+            <span th:if="${i > rating}" class="empty">☆</span>
+        </span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Footer Fragment</title>
+</head>
+<body>
+    <!-- Footer Fragment -->
+    <footer th:fragment="footer" class="footer">
+        <div class="footer-content">
+            <div class="footer-main">
+                <div class="footer-links">
+                    <h4>Esplora</h4>
+                    <ul>
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/book}">Tutti i libri</a></li>
+                        <li><a th:href="@{/author}">Autori</a></li>
+                        <li><a th:href="@{/book/search}">Ricerca libri</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a th:href="@{/users/login}">Accedi</a></li>
+                        <li><a th:href="@{/users/register}">Registrati</a></li>
+                        <li><a th:href="@{/users/profile}">Il mio profilo</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Informazioni</h4>
+                    <ul>
+                        <li><a th:href="@{/roles-info}">Sistema di ruoli</a></li>
+                        <li><a th:href="@{/about}">Chi siamo</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Libreria Aeternum. Tutti i diritti riservati.</p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

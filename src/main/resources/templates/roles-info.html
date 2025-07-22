@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Informazioni sui Ruoli - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/roles-info.css}" />
+    
+    <meta name="description" content="Sistema di ruoli e permessi della Biblioteca Sitarello">
+</head>
+<body class="roles-info-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Gestione Ruoli</span>  
+            </h1>
+            <p class="hero-subtitle">Scopri cosa puoi fare con il tuo ruolo</p>
+        </div>
+    </section>
+    
+    <main class="container">
+        <div class="roles-info">
+            
+            <div class="role-card">
+                <h2 class="role-title">
+                    <i class="fas fa-eye" style="color: #3498db;"></i>
+                    Utenti Occasionali
+                </h2>
+                <p>Visitatori non registrati che possono consultare liberamente il catalogo.</p>
+                <ul class="role-permissions">
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Consultare informazioni sui libri</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Consultare informazioni sugli autori</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Leggere tutte le recensioni</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Scrivere recensioni</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Modificare contenuti</li>
+                </ul>
+            </div>
+            
+            <div class="role-card">
+                <h2 class="role-title">
+                    <i class="fas fa-user" style="color: #27ae60;"></i>
+                    Utenti Registrati
+                </h2>
+                <p>Utenti che hanno creato un account e possono interagire con il contenuto.</p>
+                <ul class="role-permissions">
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Tutte le funzionalità degli utenti occasionali</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Scrivere recensioni (max 1 per libro)</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Modificare le proprie recensioni</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Eliminare le proprie recensioni</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Gestire il proprio profilo</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Modificare libri o autori</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Eliminare recensioni altrui</li>
+                </ul>
+            </div>
+            
+            <div class="role-card">
+                <h2 class="role-title">
+                    <i class="fas fa-user-shield" style="color: #e74c3c;"></i>
+                    Amministratori
+                </h2>
+                <p>Gestori del sistema con privilegi elevati per la manutenzione del catalogo.</p>
+                <ul class="role-permissions">
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Consultare tutte le informazioni</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Aggiungere nuovi libri</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Modificare informazioni sui libri</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Eliminare libri</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Aggiungere nuovi autori</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Modificare informazioni sugli autori</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Eliminare autori</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Eliminare qualsiasi recensione</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Scrivere recensioni</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Modificare recensioni (solo eliminarle)</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Gestire ruoli degli altri utenti</li>
+                </ul>
+            </div>
+            
+            <div class="role-card">
+                <h2 class="role-title">
+                    <i class="fas fa-crown" style="color: #9c27b0;"></i>
+                    Super-Amministratori
+                </h2>
+                <p>Amministratori con privilegi massimi che possono gestire tutti gli aspetti del sistema, inclusi gli utenti.</p>
+                <ul class="role-permissions">
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Tutti i privilegi degli amministratori</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Gestire ruoli degli altri utenti</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Promuovere/retrocedere amministratori</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Eliminare account utente</li>
+                    <li class="permission-allowed"><i class="fas fa-check"></i> Accesso completo al pannello di amministrazione</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Scrivere recensioni</li>
+                    <li class="permission-denied"><i class="fas fa-times"></i> Modificare recensioni (solo eliminarle)</li>
+                </ul>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <h3><i class="fas fa-info-circle"></i> Note Importanti</h3>
+                <ul>
+                    <li>Ogni utente registrato può aggiungere <strong>al massimo una recensione per libro</strong></li>
+                    <li>Gli amministratori e super-amministratori <strong>non possono scrivere recensioni</strong> per mantenere l'imparzialità</li>
+                    <li>Gli amministratori possono eliminare recensioni ma <strong>non modificarle</strong> per preservare l'autenticità</li>
+                    <li>I super-amministratori hanno <strong>tutti i privilegi degli amministratori</strong> più la gestione degli utenti</li>
+                    <li>Solo i super-amministratori possono <strong>modificare i ruoli</strong> degli altri utenti</li>
+                    <li>Tutte le informazioni sui libri e autori sono <strong>pubblicamente consultabili</strong></li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

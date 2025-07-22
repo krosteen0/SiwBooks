@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogo Libri - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/css/books.css}" />
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    
+    
+    <meta name="description" content="Scopri tutti i libri disponibili nella biblioteca di Sitarello">
+</head>
+<body class="books-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Page Header -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Libri</span>  
+            </h1>
+            <p class="hero-subtitle">Scopri la nostra collezione completa di libri</p>
+        </div>
+    </section>
+    
+    <main class="container">
+        
+        <!-- Advanced Search Form -->
+        <section class="search-section">
+            <div class="search-container">
+                <h2 class="search-title">
+                    <i class="fas fa-search"></i>
+                    Cerca Libri
+                </h2>
+                <form th:action="@{/book/search}" method="get" class="advanced-search-form" id="bookSearchForm">
+                    <div class="search-grid">
+                        <!-- Title Search -->
+                        <div class="search-field">
+                            <label for="titleInput" class="search-label">
+                                <i class="fas fa-book"></i>
+                                Titolo
+                            </label>
+                            <input type="text" 
+                                   id="titleInput" 
+                                   name="title" 
+                                   class="search-input" 
+                                   placeholder="Es: Il nome della rosa..."
+                                   th:value="${searchTitle}"
+                                   autocomplete="off">
+                        </div>
+                        
+                        <!-- Author Search -->
+                        <div class="search-field">
+                            <label for="authorInput" class="search-label">
+                                <i class="fas fa-user"></i>
+                                Autore
+                            </label>
+                            <input type="text" 
+                                   id="authorInput" 
+                                   name="author" 
+                                   class="search-input" 
+                                   placeholder="Es: Umberto Eco..."
+                                   th:value="${searchAuthor}"
+                                   autocomplete="off">
+                        </div>
+                        
+                        <!-- Year Search -->
+                        <div class="search-field">
+                            <label for="yearInput" class="search-label">
+                                <i class="fas fa-calendar-alt"></i>
+                                Anno di Pubblicazione
+                            </label>
+                            <input type="number" 
+                                   id="yearInput" 
+                                   name="year" 
+                                   class="search-input" 
+                                   placeholder="Es: 2020..."
+                                   th:value="${searchYear}"
+                                   min="1000" 
+                                   max="2030"
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                    
+                    <!-- Search Actions -->
+                    <div class="search-actions">
+                        <button type="submit" class="search-btn search-btn-primary" id="searchButton">
+                            <i class="fas fa-search"></i>
+                            <span>Cerca</span>
+                        </button>
+                        <button type="button" class="search-btn search-btn-secondary" id="clearButton">
+                            <i class="fas fa-times"></i>
+                            <span>Cancella</span>
+                        </button>
+                        <a th:href="@{/book}" class="search-btn search-btn-outline" id="showAllBooksBtn">
+                            <i class="fas fa-list"></i>
+                            <span>Tutti i Libri</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Search Info -->
+                    <div class="search-info" th:if="${(searchTitle != null and searchTitle != '') or (searchAuthor != null and searchAuthor != '') or (searchYear != null and searchYear != '')}">
+                        <div class="search-results-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Risultati per: </span>
+                            <span th:if="${searchTitle != null and searchTitle != ''}" class="search-term">
+                                Titolo: "<strong th:text="${searchTitle}"></strong>"
+                            </span>
+                            <span th:if="${searchAuthor != null and searchAuthor != ''}" class="search-term">
+                                Autore: "<strong th:text="${searchAuthor}"></strong>"
+                            </span>
+                            <span th:if="${searchYear != null and searchYear != ''}" class="search-term">
+                                Anno: "<strong th:text="${searchYear}"></strong>"
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Results Section -->
+        <div th:if="${books != null && !books.isEmpty()}" class="results-section">
+            
+            <!-- Books Grid: 4 per row -->
+            <div class="book-grid book-grid-4">
+                <div th:each="book : ${books}" class="book-card new-book-card">
+                    <!-- Book Cover -->
+                    <div class="book-cover new-book-cover">
+                        <img th:if="${book.coverImage != null}" 
+                             th:src="@{'/book/cover/' + ${book.id}}" 
+                             th:alt="${book.title}" />
+                        <img th:unless="${book.coverImage != null}" 
+                             th:if="${book.images != null && !book.images.isEmpty()}" 
+                             th:src="@{'/book/image/' + ${book.images[0].id}}" 
+                             th:alt="${book.title}" />
+                        <div th:unless="${book.coverImage != null || (book.images != null && !book.images.isEmpty())}" 
+                             class="book-cover-placeholder new-book-cover-placeholder">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <!-- Book Info -->
+                    <div class="book-info new-book-info">
+                        <h3 class="book-title new-book-title" th:text="${book.title}">Titolo del Libro</h3>
+                        <p class="book-author new-book-author" th:if="${book.authors != null && !book.authors.isEmpty()}">
+                            <i class="fas fa-user"></i>
+                            <span th:text="${book.authorsAsString}">Autore</span>
+                        </p>
+                        <p class="book-author new-book-author" th:unless="${book.authors != null && !book.authors.isEmpty()}">
+                            <i class="fas fa-user"></i>
+                            <span>Autore non specificato</span>
+                        </p>
+                        <p class="book-description new-book-description" th:if="${book.description}" 
+                           th:text="${#strings.abbreviate(book.description, 90)}">Breve descrizione del libro...</p>
+                        <div class="book-info-grid new-book-info-grid" th:if="${book.publicationYear != null}">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-alt"></i></span>
+                                <span class="info-value" th:text="${book.publicationYear}">2024</span>
+                            </div>
+                        </div>
+                        <div class="rating new-book-rating" th:if="${book.averageRating != null}">
+                            <div class="stars">
+                                <i th:class="${book.averageRating >= 1 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                <i th:class="${book.averageRating >= 2 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                <i th:class="${book.averageRating >= 3 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                <i th:class="${book.averageRating >= 4 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                                <i th:class="${book.averageRating >= 5 ? 'fas fa-star filled' : 'far fa-star'}"></i>
+                            </div>
+                            <span class="rating-text" th:text="${#numbers.formatDecimal(book.averageRating, 1, 1)} + '/5'">4.5/5</span>
+                        </div>
+                        <div class="book-actions new-book-actions">
+                            <a th:href="@{'/book/details/' + ${book.id}}" class="book-btn book-btn-primary">
+                                <i class="fas fa-eye me-1"></i>
+                                <span>Dettagli</span>
+                            </a>
+                            <a th:href="@{'/reviews/book/' + ${book.id}}" class="book-btn book-btn-secondary">
+                                <i class="fas fa-comments me-1"></i>
+                                <span>Recensioni</span>
+                            </a>
+                            <div th:if="${isAdmin or isSuperAdmin}" class="admin-actions">
+                                <a th:href="@{'/book/edit/' + ${book.id}}" class="btn btn-secondary btn-sm admin-edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Modifica</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div th:if="${books == null || books.isEmpty()}" class="empty-state-wrapper">
+            <div class="empty-state">
+            <i class="fas fa-book-open"></i>
+            <h3>Nessun libro trovato</h3>
+            <p>Non abbiamo trovato libri che corrispondono ai tuoi criteri di ricerca.</p>
+            <div th:if="${isAdmin or isSuperAdmin}">
+                <a th:href="@{/book/create}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-plus"></i>
+                    Aggiungi il Primo Libro
+                </a>
+            </div>
+            </div>
+        </div>
+        
+        <!-- Pagination (if needed) -->
+        <div th:if="${totalPages != null && totalPages > 1}" class="pagination">
+            <a th:if="${currentPage > 0}" 
+               th:href="@{/book(page=${currentPage - 1}, title=${searchTitle}, author=${searchAuthor}, genre=${searchGenre})}" 
+               class="page-link"
+               title="Pagina precedente">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            
+            <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                  th:if="${pageNum >= currentPage - 2 && pageNum <= currentPage + 2}">
+                <a th:if="${pageNum != currentPage}"
+                   th:href="@{/book(page=${pageNum}, title=${searchTitle}, author=${searchAuthor}, genre=${searchGenre})}" 
+                   class="page-link"
+                   th:text="${pageNum + 1}"
+                   th:title="'Vai alla pagina ' + ${pageNum + 1}">1</a>
+                <span th:if="${pageNum == currentPage}" 
+                      class="page-link active"
+                      th:text="${pageNum + 1}"
+                      th:title="'Pagina corrente ' + ${pageNum + 1}">1</span>
+            </span>
+            
+            <a th:if="${currentPage < totalPages - 1}" 
+               th:href="@{/book(page=${currentPage + 1}, title=${searchTitle}, author=${searchAuthor}, genre=${searchGenre})}" 
+               class="page-link"
+               title="Pagina successiva">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Torna su">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- JavaScript for Enhanced Search Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search form elements
+            const searchForm = document.getElementById('bookSearchForm');
+            const searchButton = document.getElementById('searchButton');
+            const clearButton = document.getElementById('clearButton');
+            const titleInput = document.getElementById('titleInput');
+            const authorInput = document.getElementById('authorInput');
+            const yearInput = document.getElementById('yearInput');
+            const showAllBooksBtn = document.getElementById('showAllBooksBtn');
+            
+            // Function to scroll to books section
+            function scrollToBooksSection() {
+                const booksSection = document.querySelector('.book-grid');
+                const resultsSection = document.querySelector('.results-section');
+                const emptyStateSection = document.querySelector('.empty-state-wrapper');
+                
+                // Determine which section to scroll to
+                const targetSection = booksSection || resultsSection || emptyStateSection;
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                }
+            }
+            
+            // Enhanced form validation and submission
+            function validateAndSubmitForm(e) {
+                // Prevent default form submission
+                if (e) e.preventDefault();
+                
+                // Check if at least one field is filled
+                const title = titleInput?.value?.trim() || '';
+                const author = authorInput?.value?.trim() || '';
+                const year = yearInput?.value?.trim() || '';
+                
+                if (!title && !author && !year) {
+                    // Show elegant alert
+                    showCustomAlert('Inserisci almeno un criterio di ricerca per continuare');
+                    titleInput?.focus();
+                    return false;
+                }
+                
+                // Validate year if provided
+                if (year) {
+                    const yearValue = parseInt(year);
+                    const currentYear = new Date().getFullYear();
+                    if (yearValue < 1000 || yearValue > currentYear + 10) {
+                        showCustomAlert(`Inserisci un anno valido (1000 - ${currentYear + 10})`);
+                        yearInput?.focus();
+                        return false;
+                    }
+                }
+                
+                // Add loading state to search button
+                if (searchButton) {
+                    searchButton.disabled = true;
+                    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Ricerca in corso...</span>';
+                    searchButton.style.opacity = '0.8';
+                }
+                
+                // Add loading overlay to form
+                if (searchForm) {
+                    searchForm.style.opacity = '0.8';
+                    searchForm.style.pointerEvents = 'none';
+                    searchForm.style.filter = 'blur(1px)';
+                }
+                
+                // Submit the form programmatically
+                setTimeout(() => {
+                    searchForm?.submit();
+                }, 200);
+                
+                return true;
+            }
+            
+            // Custom alert function
+            function showCustomAlert(message) {
+                // Remove existing alerts
+                const existingAlert = document.querySelector('.custom-search-alert');
+                if (existingAlert) existingAlert.remove();
+                
+                // Create alert element
+                const alert = document.createElement('div');
+                alert.className = 'custom-search-alert';
+                alert.innerHTML = `
+                    <div class="alert-content">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>${message}</span>
+                        <button class="alert-close" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add styles
+                alert.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+                    z-index: 10000;
+                    animation: slideInRight 0.3s ease;
+                    max-width: 400px;
+                    font-family: var(--font-secondary);
+                `;
+                
+                // Add to page
+                document.body.appendChild(alert);
+                
+                // Auto remove after 4 seconds
+                setTimeout(() => {
+                    if (alert.parentElement) {
+                        alert.style.animation = 'slideOutRight 0.3s ease';
+                        setTimeout(() => alert.remove(), 300);
+                    }
+                }, 4000);
+                
+                // Add animation styles
+                if (!document.querySelector('#custom-alert-styles')) {
+                    const styles = document.createElement('style');
+                    styles.id = 'custom-alert-styles';
+                    styles.textContent = `
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); opacity: 0; }
+                            to { transform: translateX(0); opacity: 1; }
+                        }
+                        @keyframes slideOutRight {
+                            from { transform: translateX(0); opacity: 1; }
+                            to { transform: translateX(100%); opacity: 0; }
+                        }
+                        .custom-search-alert .alert-content {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                        }
+                        .custom-search-alert .alert-close {
+                            background: none;
+                            border: none;
+                            color: white;
+                            cursor: pointer;
+                            padding: 4px;
+                            border-radius: 50%;
+                            transition: background 0.2s;
+                        }
+                        .custom-search-alert .alert-close:hover {
+                            background: rgba(255, 255, 255, 0.2);
+                        }
+                    `;
+                    document.head.appendChild(styles);
+                }
+            }
+            
+            // Search form submission with enhanced validation
+            if (searchForm) {
+                searchForm.addEventListener('submit', validateAndSubmitForm);
+            }
+            
+            // "Tutti i Libri" button functionality
+            if (showAllBooksBtn) {
+                showAllBooksBtn.addEventListener('click', function(e) {
+                    // Check if we're already on the main books page (no search params)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const hasSearchParams = urlParams.has('title') || urlParams.has('author') || urlParams.has('year');
+                    
+                    if (hasSearchParams) {
+                        // If we have search parameters, let the normal navigation happen
+                        return true;
+                    } else {
+                        // If we're already on the main page, just scroll to books section
+                        e.preventDefault();
+                        
+                        // Add loading state
+                        this.style.opacity = '0.8';
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Caricamento...</span>';
+                        
+                        // Scroll to books section after a brief delay for visual feedback
+                        setTimeout(() => {
+                            scrollToBooksSection();
+                            
+                            // Restore button state
+                            this.style.opacity = '';
+                            this.innerHTML = '<i class="fas fa-list"></i><span>Tutti i Libri</span>';
+                        }, 300);
+                    }
+                });
+            }
+            
+            // Clear button functionality with animation
+            if (clearButton) {
+                clearButton.addEventListener('click', function() {
+                    const inputs = [titleInput, authorInput, yearInput];
+                    
+                    // Clear values with animation
+                    inputs.forEach((input, index) => {
+                        if (input) {
+                            setTimeout(() => {
+                                input.value = '';
+                                input.style.transform = 'scale(0.95)';
+                                input.style.background = 'rgba(108, 117, 125, 0.1)';
+                                
+                                setTimeout(() => {
+                                    input.style.transform = '';
+                                    input.style.background = '';
+                                }, 200);
+                            }, index * 100);
+                        }
+                    });
+                    
+                    // Focus on first input after animation
+                    setTimeout(() => {
+                        titleInput?.focus();
+                    }, 400);
+                });
+            }
+            
+            // Enhanced input interactions
+            const inputs = [titleInput, authorInput, yearInput];
+            inputs.forEach(input => {
+                if (input) {
+                    // Enhanced focus effects
+                    input.addEventListener('focus', function() {
+                        this.style.transform = 'scale(1.02)';
+                        this.style.background = 'rgba(255, 255, 255, 0.98)';
+                        
+                        // Add focus ring animation
+                        this.style.boxShadow = `
+                            0 0 0 4px rgba(218, 165, 32, 0.15),
+                            0 8px 24px rgba(139, 69, 19, 0.1),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.9)
+                        `;
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        this.style.transform = '';
+                        this.style.background = '';
+                        this.style.boxShadow = '';
+                    });
+                    
+                    // Real-time validation feedback with better styling
+                    input.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.style.borderColor = 'rgba(40, 167, 69, 0.6)';
+                            this.style.boxShadow = '0 0 0 2px rgba(40, 167, 69, 0.1)';
+                        } else {
+                            this.style.borderColor = '';
+                            this.style.boxShadow = '';
+                        }
+                    });
+                    
+                    // Enhanced Enter key handling
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Add visual feedback
+                            this.style.transform = 'scale(0.98)';
+                            setTimeout(() => {
+                                this.style.transform = '';
+                                validateAndSubmitForm();
+                            }, 100);
+                        }
+                    });
+                }
+            });
+            
+            // Enhanced year input validation
+            if (yearInput) {
+                yearInput.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    const currentYear = new Date().getFullYear();
+                    
+                    if (this.value && (isNaN(value) || value < 1000 || value > currentYear + 10)) {
+                        this.style.borderColor = 'rgba(220, 53, 69, 0.6)';
+                        this.style.boxShadow = '0 0 0 2px rgba(220, 53, 69, 0.1)';
+                        this.title = `Inserisci un anno valido (1000 - ${currentYear + 10})`;
+                    } else {
+                        this.style.borderColor = this.value.trim() ? 'rgba(40, 167, 69, 0.6)' : '';
+                        this.style.boxShadow = this.value.trim() ? '0 0 0 2px rgba(40, 167, 69, 0.1)' : '';
+                        this.title = '';
+                    }
+                });
+            }
+            
+            // Enhanced keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + K to focus on title search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !e.shiftKey) {
+                    e.preventDefault();
+                    titleInput?.focus();
+                    titleInput?.select();
+                }
+                
+                // Ctrl/Cmd + Shift + K to focus on author search
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'K') {
+                    e.preventDefault();
+                    authorInput?.focus();
+                    authorInput?.select();
+                }
+                
+                // Ctrl/Cmd + Shift + Y to focus on year search
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Y') {
+                    e.preventDefault();
+                    yearInput?.focus();
+                    yearInput?.select();
+                }
+                
+                // Escape to clear all fields
+                if (e.key === 'Escape') {
+                    const activeElement = document.activeElement;
+                    if (inputs.includes(activeElement)) {
+                        clearButton?.click();
+                    }
+                }
+                
+                // Ctrl/Cmd + Enter to submit from anywhere
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    validateAndSubmitForm();
+                }
+            });
+            
+            // Smooth scroll to results after search
+            if (window.location.search.includes('title=') || 
+                window.location.search.includes('author=') || 
+                window.location.search.includes('year=')) {
+                setTimeout(() => {
+                    scrollToBooksSection();
+                }, 300);
+            }
+            
+            // Add loading state recovery on page load
+            if (searchButton) {
+                searchButton.disabled = false;
+                searchButton.innerHTML = '<i class="fas fa-search"></i><span>Cerca</span>';
+                searchButton.style.opacity = '';
+            }
+            
+            if (searchForm) {
+                searchForm.style.opacity = '';
+                searchForm.style.pointerEvents = '';
+                searchForm.style.filter = '';
+            }
+        });
+    </script>
+</body>
+</html>

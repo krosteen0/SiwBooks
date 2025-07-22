@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Tuo Profilo - Biblioteca Sitarello</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/profile.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Tu</span>  
+            </h1>
+            <p class="hero-subtitle">Gestisci le tue informazioni personali</p>
+        </div>
+    </section>
+    
+    <main class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span>/</span>
+            <span>Profilo</span>
+        </div>
+        
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar" th:text="${username != null && username.length() > 0 ? username.substring(0,1).toUpperCase() : 'U'}">U</div>
+                    <h2 class="profile-name" th:text="${username != null ? username : 'Utente'}">Username</h2>
+                    <p class="profile-role" th:text="${user != null ? user.role : 'Utente'}">Ruolo</p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" th:text="${user != null && user.reviews != null ? user.reviews.size() : 0}">0</div>
+                            <div class="stat-label">Recensioni</div>
+                        </div>
+                    </div>
+                    
+                    <a href="#settings" class="btn-edit-profile" onclick="showTab('settings')">
+                        <i class="fas fa-user-cog"></i> Modifica Profilo
+                    </a>
+                </div>
+                
+                <div class="profile-card">
+                    <ul class="profile-menu">
+                        <li><a href="#dashboard" class="active" onclick="showTab('dashboard')"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                        <li><a href="#reviews" onclick="showTab('reviews')"><i class="fas fa-star"></i> Le Mie Recensioni</a></li>
+                        <li><a href="#settings" onclick="showTab('settings')"><i class="fas fa-user-cog"></i> Impostazioni</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="profile-content">
+                <!-- Notifiche di successo e errore -->
+                <div th:if="${profileSuccess}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${profileSuccess}">Profilo aggiornato con successo</span>
+                </div>
+                
+                <div th:if="${profileError}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${profileError}">Errore durante l'aggiornamento</span>
+                </div>
+                
+                <div th:if="${passwordSuccess}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${passwordSuccess}">Password modificata con successo</span>
+                </div>
+                
+                <div th:if="${passwordError}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${passwordError}">Errore durante il cambio password</span>
+                </div>
+                
+                <div id="dashboard" class="tab-content active">
+                    <div class="profile-section">
+                        <h3><i class="fas fa-info-circle"></i> Informazioni Personali</h3>
+                        
+                        <div class="info-row">
+                            <div class="info-label">Username:</div>
+                            <div class="info-value" th:text="${username != null ? username : 'N/A'}">Username</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">Email:</div>
+                            <div class="info-value" th:text="${user != null ? user.email : 'N/A'}">Email</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">Ruolo:</div>
+                            <div class="info-value" th:text="${user != null ? user.role : 'Utente'}">Ruolo</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">Recensioni scritte:</div>
+                            <div class="info-value" th:text="${user != null && user.reviews != null ? user.reviews.size() : 0}">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3><i class="fas fa-chart-bar"></i> La Tua Attività</h3>
+                        
+                        <div class="stats-grid">
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-book-reader"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-number" th:text="${user != null && user.reviews != null ? user.reviews.size() : 0}">0</div>
+                                    <div class="stat-label">Libri recensiti</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-number">2025</div>
+                                    <div class="stat-label">Membro dal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Sezione Recensioni -->
+                <div id="reviews" class="tab-content">
+                    <div class="profile-section">
+                        <h3><i class="fas fa-star"></i> Le Mie Recensioni</h3>
+                        
+                        <div th:if="${user == null || user.reviews == null || user.reviews.isEmpty()}" class="empty-section">
+                            <i class="fas fa-star fa-3x"></i>
+                            <p>Non hai ancora scritto nessuna recensione.</p>
+                            <p>Inizia a esplorare i libri e condividi le tue opinioni!</p>
+                            <a th:href="@{/book}" class="btn-edit-profile">
+                                <i class="fas fa-book-open"></i> Esplora Libri
+                            </a>
+                        </div>
+                        
+                        <div th:unless="${user == null || user.reviews == null || user.reviews.isEmpty()}" class="reviews-list">
+                            <div th:each="review : ${user.reviews}" class="review-card">
+                                <div class="review-header">
+                                    <div class="book-info">
+                                        <h4 th:text="${review.book.title}">Titolo Libro</h4>
+                                        <p th:text="${'di ' + review.book.authorsAsString}">Autore</p>
+                                    </div>
+                                    <div class="review-rating">
+                                        <div class="stars">
+                                            <span th:each="star : ${#numbers.sequence(1, 5)}" 
+                                                  th:class="${star <= review.rating} ? 'star filled' : 'star'">★</span>
+                                        </div>
+                                        <span th:text="${review.rating + '/5'}">5/5</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="review-content">
+                                    <p th:text="${review.title}">Titolo recensione</p>
+                                    <p th:text="${review.text}">Testo della recensione...</p>
+                                </div>
+                                
+                                <div class="review-actions">
+                                    <a th:href="@{'/book/details/' + ${review.book.id}}" class="btn-secondary">
+                                        <i class="fas fa-book"></i> Visualizza Libro
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sezione Impostazioni -->
+                <div id="settings" class="tab-content">
+                    <div class="profile-section">
+                        <h3><i class="fas fa-user-cog"></i> Impostazioni Profilo</h3>
+                        
+                        <form class="settings-form" th:action="@{/users/update-profile}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            
+                            <div class="form-group">
+                                <label>Nome Utente</label>
+                                <input type="text" name="username" th:value="${username != null ? username : ''}" 
+                                       required minlength="3" maxlength="20"
+                                       pattern="^[a-zA-Z0-9_]+$"
+                                       title="Solo lettere, numeri e underscore (3-20 caratteri)" />
+                                <small>Modifica il tuo nome utente (3-20 caratteri, solo lettere, numeri e underscore).</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Indirizzo Email</label>
+                                <input type="email" th:value="${user != null ? user.email : ''}" readonly />
+                                <small>L'indirizzo email non può essere modificato per motivi di sicurezza.</small>
+                            </div>
+                            <button type="submit" class="btn-edit-profile">Salva Modifiche</button>
+                        </form>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3><i class="fas fa-lock"></i> Sicurezza</h3>
+                        
+                        <form class="security-form" th:action="@{/users/change-password}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            
+                            <div class="form-group">
+                                <label>Password Attuale</label>
+                                <input type="password" name="currentPassword" required minlength="8" />
+                            </div>
+                            <div class="form-group">
+                                <label>Nuova Password</label>
+                                <input type="password" name="newPassword" required minlength="8" 
+                                       title="La password deve contenere almeno 8 caratteri, una lettera maiuscola e un numero" />
+                            </div>
+                            <div class="form-group">
+                                <label>Conferma Nuova Password</label>
+                                <input type="password" name="confirmPassword" required minlength="8" />
+                            </div>
+                            <button type="submit" class="btn-edit-profile">Cambia Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Include footer fragment -->
+    <div th:insert="~{fragments/footer :: footer}"></div>
+    
+    <script th:src="@{/js/profile.js}"></script>
+</body>
+</html>
+
+

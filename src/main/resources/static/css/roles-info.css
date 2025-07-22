@@ -1,0 +1,444 @@
+/* =======================================================================
+   BIBLIOTECA SITARELLO - ROLES INFO PAGE
+   Design elegante con palette marrone/crema, spazi generosi e bordi morbidi
+   ======================================================================= */
+
+/* Import variables from homepage.css for consistency */
+@import url('homepage.css');
+
+/* =======================================================================
+   BASE STYLES
+   ======================================================================= */
+
+.roles-info-page {
+    background-color: var(--warm-white);
+    color: var(--text-dark);
+    min-height: 100vh;
+    font-family: var(--font-secondary);
+}
+
+/* =======================================================================
+   HERO SECTION
+   ======================================================================= */
+
+.hero-section {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, 
+        var(--warm-white) 0%, 
+        var(--cream) 50%, 
+        var(--light-brown) 100%);
+    overflow: hidden;
+}
+
+
+
+@keyframes gentle-float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(-10px, -10px) rotate(1deg); }
+    66% { transform: translate(10px, -5px) rotate(-1deg); }
+}
+
+.hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-2xl) var(--space-lg);
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-text {
+    margin-bottom: var(--space-2xl);
+}
+
+.hero-title {
+    font-family: var(--font-primary);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+    line-height: 1.2;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.title-main {
+    color: var(--text-dark);
+    display: inline-block;
+    position: relative;
+    text-align: center;
+}
+
+
+.title-main::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-gold), var(--primary-brown));
+    border-radius: var(--radius-full);
+}
+
+/* =======================================================================
+   CONTAINER & LAYOUT
+   ======================================================================= */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-2xl) var(--space-lg);
+}
+
+/* =======================================================================
+   ROLES INFO STYLES
+   ======================================================================= */
+
+.roles-info {
+    display: grid;
+    gap: var(--space-xl);
+}
+
+.roles-info h1 {
+    font-family: var(--font-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-brown);
+    text-align: center;
+    margin-bottom: var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    background: linear-gradient(135deg, var(--cream), var(--light-brown));
+    padding: var(--space-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.roles-info > p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    text-align: center;
+    line-height: 1.7;
+    background-color: var(--warm-white);
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--accent-gold);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =======================================================================
+   ROLE CARDS
+   ======================================================================= */
+
+.role-card {
+    background: linear-gradient(135deg, var(--warm-white), var(--cream));
+    padding: var(--space-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--accent-gold), var(--primary-brown));
+    transition: var(--transition-normal);
+}
+
+.role-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+}
+
+.role-card:hover::before {
+    width: 8px;
+}
+
+.role-title {
+    font-family: var(--font-primary);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    color: var(--primary-brown);
+}
+
+.role-title i {
+    font-size: 2rem;
+    padding: var(--space-md);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--warm-white), var(--cream));
+    box-shadow: var(--shadow-sm);
+    border: 2px solid var(--border-light);
+}
+
+.role-card > p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    line-height: 1.7;
+    margin-bottom: var(--space-xl);
+    font-style: italic;
+}
+
+/* =======================================================================
+   ROLE PERMISSIONS
+   ======================================================================= */
+
+.role-permissions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-sm);
+}
+
+.role-permissions li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+    font-weight: 500;
+}
+
+.permission-allowed {
+    background-color: rgba(39, 174, 96, 0.1);
+    color: var(--text-light);
+    border-left: 3px solid #27ae60;
+}
+
+.permission-allowed:hover {
+    background-color: rgba(39, 174, 96, 0.15);
+    transform: translateX(4px);
+}
+
+.permission-allowed i {
+    color: #27ae60;
+    background-color: rgba(39, 174, 96, 0.2);
+    padding: var(--space-xs);
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+}
+
+.permission-denied {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--text-muted);
+    border-left: 3px solid #e74c3c;
+}
+
+.permission-denied:hover {
+    background-color: rgba(231, 76, 60, 0.15);
+}
+
+.permission-denied i {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.2);
+    padding: var(--space-xs);
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+}
+
+/* =======================================================================
+   NOTES SECTION
+   ======================================================================= */
+
+.roles-info > div:last-child {
+    background: linear-gradient(135deg, var(--cream), var(--light-brown));
+    padding: var(--space-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    margin-top: var(--space-xl);
+}
+
+.roles-info > div:last-child h3 {
+    font-family: var(--font-primary);
+    color: var(--primary-brown);
+    margin-bottom: var(--space-lg);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.roles-info > div:last-child h3 i {
+    color: var(--accent-gold);
+    background-color: var(--warm-white);
+    padding: var(--space-sm);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+}
+
+.roles-info > div:last-child ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-md);
+}
+
+.roles-info > div:last-child li {
+    background-color: var(--warm-white);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    color: var(--text-light);
+    line-height: 1.6;
+    border-left: 4px solid var(--accent-gold);
+    transition: var(--transition-normal);
+    position: relative;
+    padding-left: var(--space-xl);
+}
+
+.roles-info > div:last-child li:hover {
+    background-color: var(--cream);
+    border-left-color: var(--primary-brown);
+    transform: translateX(4px);
+}
+
+.roles-info > div:last-child li::before {
+    content: '💡';
+    position: absolute;
+    left: var(--space-md);
+    font-size: 1.1rem;
+}
+
+.roles-info > div:last-child strong {
+    color: var(--primary-brown);
+    font-weight: 600;
+}
+
+/* =======================================================================
+   ANIMATIONS
+   ======================================================================= */
+
+@keyframes gentle-float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-10px) rotate(1deg); }
+    50% { transform: translateY(0px) rotate(0deg); }
+    75% { transform: translateY(10px) rotate(-1deg); }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.role-card {
+    animation: fade-in-up 0.6s ease-out;
+}
+
+.role-card:nth-child(2) { animation-delay: 0.1s; }
+.role-card:nth-child(3) { animation-delay: 0.2s; }
+.role-card:nth-child(4) { animation-delay: 0.3s; }
+.role-card:nth-child(5) { animation-delay: 0.4s; }
+
+/* =======================================================================
+   RESPONSIVE DESIGN
+   ======================================================================= */
+
+@media (max-width: 768px) {
+    .hero-title,
+    .roles-info h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .container {
+        padding: var(--space-xl) var(--space-md);
+    }
+    
+    .role-card {
+        padding: var(--space-xl);
+    }
+    
+    .role-title {
+        font-size: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-sm);
+    }
+    
+    .role-title i {
+        align-self: center;
+    }
+    
+    .role-permissions li {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-sm);
+        align-items: center;
+    }
+    
+    .roles-info > div:last-child {
+        padding: var(--space-xl);
+    }
+    
+    .roles-info > div:last-child h3 {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title,
+    .roles-info h1 {
+        font-size: 1.75rem;
+    }
+    
+    .role-card {
+        padding: var(--space-lg);
+    }
+    
+    .role-title {
+        font-size: 1.25rem;
+    }
+    
+    .roles-info > div:last-child {
+        padding: var(--space-lg);
+    }
+}

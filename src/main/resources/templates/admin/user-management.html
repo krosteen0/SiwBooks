@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione Utenti - Super Admin</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/user-management.css}" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Utenti</span>  
+            </h1>
+            <p class="hero-subtitle">Pannello di controllo sugli utenti</p>
+        </div>
+    </section>
+    
+    <main class="container">
+        
+        <!-- Success/Error Messages -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:if="${param.success[0] == 'role-updated'}">Ruolo utente aggiornato con successo!</span>
+            <span th:if="${param.success[0] == 'user-deleted'}">Utente eliminato con successo!</span>
+        </div>
+        
+        <div th:if="${param.error}" class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:if="${param.error[0] == 'self-modify'}">Non puoi modificare il tuo stesso ruolo!</span>
+            <span th:if="${param.error[0] == 'self-delete'}">Non puoi eliminare il tuo stesso account!</span>
+            <span th:if="${param.error[0] == 'invalid-role'}">Ruolo specificato non valido!</span>
+            <span th:if="${param.error[0] == 'user-not-found'}">Utente non trovato!</span>
+            <span th:if="${param.error[0] == 'update-failed'}">Errore durante l'aggiornamento!</span>
+            <span th:if="${param.error[0] == 'delete-failed'}">Errore durante l'eliminazione!</span>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${#lists.size(users)}">0</h3>
+                    <p>Utenti Totali</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${adminCount}">0</h3>
+                    <p>Amministratori</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${superAdminCount}">0</h3>
+                    <p>Super-Admin</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${userCount}">0</h3>
+                    <p>Utenti Standard</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search and Filter Header -->
+        <div class="search-filter-section">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Cerca per username o email..." class="search-input">
+                <button type="button" class="clear-search" id="clearSearch" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="filter-container">
+                <select id="roleFilter" class="role-filter">
+                    <option value="">Tutti i ruoli</option>
+                    <option value="USER">Utenti</option>
+                    <option value="ADMIN">Amministratori</option>
+                    <option value="SUPER_ADMIN">Super-Admin</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Users Table -->
+        <div class="users-table-container">
+            <div class="table-header">
+                <h2><i class="fas fa-list"></i> Lista Utenti</h2>
+                <div class="table-stats">
+                    <span class="users-count">
+                        Utenti visualizzati: <strong id="visibleCount" th:text="${#lists.size(users)}">0</strong>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Ruolo Attuale</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}" class="user-row" th:data-role="${user.role}">
+                            <td th:text="${user.id}">1</td>
+                            <td>
+                                <div class="user-info">
+                                    <span class="username" th:text="${user.username}">username</span>
+                                    <span th:if="${user.id == currentUser.id}" class="current-user-badge">
+                                        <i class="fas fa-user-circle"></i> Tu
+                                    </span>
+                                </div>
+                            </td>
+                            <td th:text="${user.email}">email@example.com</td>
+                            <td>
+                                <span class="role-badge" th:classappend="${user.role.toLowerCase()}" th:text="${user.role}">USER</span>
+                            </td>
+                            <td class="actions-cell">
+                                <div class="action-buttons">
+                                    <!-- Role Change Dropdown -->
+                                    <div class="role-change-container" th:unless="${user.id == currentUser.id}">
+                                        <form th:action="@{'/admin/users/' + ${user.id} + '/role'}" method="post" class="role-form">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <select name="newRole" class="role-select" th:data-current="${user.role}">
+                                                <option value="USER" th:selected="${user.role == 'USER'}">Utente</option>
+                                                <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">Amministratore</option>
+                                                <option value="SUPER_ADMIN" th:selected="${user.role == 'SUPER_ADMIN'}">Super-Admin</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Aggiorna ruolo">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Delete Button -->
+                                    <form th:unless="${user.id == currentUser.id}" 
+                                          th:action="@{'/admin/users/' + ${user.id} + '/delete'}" 
+                                          method="post" 
+                                          class="delete-form"
+                                          th:data-username="${user.username}">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Elimina utente">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- Current User Indicator -->
+                                    <span th:if="${user.id == currentUser.id}" class="current-user-actions">
+                                        <i class="fas fa-lock"></i> Account protetto
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation-buttons">
+            <a th:href="@{/}" class="btn btn-secondary">
+                <i class="fas fa-home"></i>
+                Torna alla Home
+            </a>
+        </div>
+    </main>
+    
+    <div th:insert="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/user-management.js}"></script>
+</body>
+</html>

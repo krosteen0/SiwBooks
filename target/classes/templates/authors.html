@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autori - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/css/authors.css}" />
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    
+    <meta name="description" content="Scopri tutti gli autori nella biblioteca di Sitarello">
+</head>
+<body class="authors-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Page Header -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Autori</span>  
+            </h1>
+            <p class="hero-subtitle">Scopri tutti gli scrittori della nostra collezione</p>
+        </div>
+    </section>
+    
+    <main class="container">
+        
+        <!-- Advanced Search Form -->
+        <section class="search-section">
+            <div class="search-container">
+                <h2 class="search-title">
+                    <i class="fas fa-search"></i>
+                    Cerca Autori
+                </h2>
+                <form th:action="@{/author/search}" method="get" class="advanced-search-form" id="authorSearchForm">
+                    <div class="search-grid">
+                        <!-- First Name Search -->
+                        <div class="search-field">
+                            <label for="firstNameInput" class="search-label">
+                                <i class="fas fa-user"></i>
+                                Nome
+                            </label>
+                            <input type="text" 
+                                   id="firstNameInput" 
+                                   name="firstName" 
+                                   class="search-input" 
+                                   placeholder="Es: Umberto..."
+                                   th:value="${searchFirstName}"
+                                   autocomplete="off">
+                        </div>
+                        
+                        <!-- Last Name Search -->
+                        <div class="search-field">
+                            <label for="lastNameInput" class="search-label">
+                                <i class="fas fa-user-tag"></i>
+                                Cognome
+                            </label>
+                            <input type="text" 
+                                   id="lastNameInput" 
+                                   name="lastName" 
+                                   class="search-input" 
+                                   placeholder="Es: Eco..."
+                                   th:value="${searchLastName}"
+                                   autocomplete="off">
+                        </div>
+                        
+                        <!-- Nationality Search -->
+                        <div class="search-field">
+                            <label for="nationalitySelect" class="search-label">
+                                <i class="fas fa-globe"></i>
+                                Nazionalità
+                            </label>
+                            <select id="nationalitySelect" 
+                                    name="nationality" 
+                                    class="search-input search-select">
+                                <option value="">Tutte le nazionalità</option>
+                                <option th:each="nationality : ${nationalities}" 
+                                        th:value="${nationality}" 
+                                        th:text="${nationality}"
+                                        th:selected="${nationality == searchNationality}">
+                                    Nazionalità
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Actions -->
+                    <div class="search-actions">
+                        <button type="submit" class="search-btn search-btn-primary" id="searchButton">
+                            <i class="fas fa-search"></i>
+                            <span>Cerca</span>
+                        </button>
+                        <button type="button" class="search-btn search-btn-secondary" id="clearButton">
+                            <i class="fas fa-times"></i>
+                            <span>Cancella</span>
+                        </button>
+                        <a th:href="@{/author}" class="search-btn search-btn-outline" id="showAllAuthorsBtn">
+                            <i class="fas fa-users"></i>
+                            <span>Tutti gli Autori</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Search Info -->
+                    <div class="search-info" th:if="${(searchFirstName != null and searchFirstName != '') or (searchLastName != null and searchLastName != '') or (searchNationality != null and searchNationality != '')}">
+                        <div class="search-results-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Risultati per: </span>
+                            <span th:if="${searchFirstName != null and searchFirstName != ''}" class="search-term">
+                                Nome: "<strong th:text="${searchFirstName}"></strong>"
+                            </span>
+                            <span th:if="${searchLastName != null and searchLastName != ''}" class="search-term">
+                                Cognome: "<strong th:text="${searchLastName}"></strong>"
+                            </span>
+                            <span th:if="${searchNationality != null and searchNationality != ''}" class="search-term">
+                                Nazionalità: "<strong th:text="${searchNationality}"></strong>"
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Results Section -->
+        <div th:if="${authors != null && !authors.isEmpty()}" class="results-section">
+            
+            <!-- Authors Grid -->
+            <div class="authors-grid">
+                <div th:each="author : ${authors}" class="author-card">
+                    <!-- Author Photo -->
+                    <div class="author-image">
+                        <img th:if="${author.photo != null and author.photo.length > 0}" 
+                             th:src="@{'/author/photo/' + ${author.id}}" 
+                             th:alt="${author.firstName + ' ' + author.lastName}"
+                             class="author-photo">
+                        <div th:unless="${author.photo != null and author.photo.length > 0}" class="author-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Author Info -->
+                    <div class="author-info">
+                        <h3 class="author-name" 
+                            th:text="${author.firstName + ' ' + author.lastName}">Nome Autore</h3>
+                        
+                        <div class="author-details">
+                            <p class="author-nationality" th:if="${author.nationality != null}">
+                                <i class="fas fa-globe"></i>
+                                <span th:text="${author.nationality}">Nazionalità</span>
+                            </p>
+                            
+                            <p class="author-birth" th:if="${author.birthDate != null}">
+                                <i class="fas fa-calendar"></i>
+                                <span th:text="${#temporals.format(author.birthDate, 'dd/MM/yyyy')}">Data nascita</span>
+                                <span th:if="${author.deathDate != null}" 
+                                      th:text="' - ' + ${#temporals.format(author.deathDate, 'dd/MM/yyyy')}">
+                                    - Data morte
+                                </span>
+                            </p>
+                            
+                            <p class="author-books" th:if="${author.books != null and !author.books.isEmpty()}">
+                                <i class="fas fa-book"></i>
+                                <span th:text="${author.books.size()} + ' libri'">Numero libri</span>
+                            </p>
+                        </div>
+                        
+                        <div class="author-actions">
+                            <a th:href="@{'/author/details/' + ${author.id}}" class="author-btn author-btn-primary">
+                                <i class="fas fa-eye"></i>
+                                <span>Dettagli</span>
+                            </a>
+                            <div th:if="${isAdmin or isSuperAdmin}" class="admin-actions">
+                                <a th:href="@{'/author/edit/' + ${author.id}}" class="btn btn-secondary btn-sm admin-edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Modifica</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div th:if="${authors == null || authors.isEmpty()}" class="empty-state-wrapper">
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>Nessun autore trovato</h3>
+                <p>Non abbiamo trovato autori che corrispondono ai tuoi criteri di ricerca.</p>
+                <div th:if="${isAdmin or isSuperAdmin}">
+                    <a th:href="@{/author/create}" class="btn btn-primary btn-lg mt-3">
+                        <i class="fas fa-plus"></i>
+                        Aggiungi il Primo Autore
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Torna su">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search form elements
+            const searchForm = document.getElementById('authorSearchForm');
+            const searchButton = document.getElementById('searchButton');
+            const clearButton = document.getElementById('clearButton');
+            const firstNameInput = document.getElementById('firstNameInput');
+            const lastNameInput = document.getElementById('lastNameInput');
+            const nationalitySelect = document.getElementById('nationalitySelect');
+            const showAllAuthorsBtn = document.getElementById('showAllAuthorsBtn');
+            
+            // Function to scroll to authors section
+            function scrollToAuthorsSection() {
+                const authorsSection = document.querySelector('.authors-grid');
+                const resultsSection = document.querySelector('.results-section');
+                const emptyStateSection = document.querySelector('.empty-state-wrapper');
+                
+                // Determine which section to scroll to
+                const targetSection = authorsSection || resultsSection || emptyStateSection;
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                }
+            }
+            
+            // Enhanced form validation and submission
+            function validateAndSubmitForm(e) {
+                if (e) e.preventDefault();
+                
+                // Check if at least one field is filled
+                const firstName = firstNameInput?.value?.trim() || '';
+                const lastName = lastNameInput?.value?.trim() || '';
+                const nationality = nationalitySelect?.value?.trim() || '';
+                
+                if (!firstName && !lastName && !nationality) {
+                    showCustomAlert('Inserisci almeno un criterio di ricerca per continuare');
+                    firstNameInput?.focus();
+                    return false;
+                }
+                
+                // Add loading state to search button
+                if (searchButton) {
+                    searchButton.disabled = true;
+                    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Ricerca in corso...</span>';
+                    searchButton.style.opacity = '0.8';
+                }
+                
+                // Submit the form programmatically
+                setTimeout(() => {
+                    searchForm?.submit();
+                }, 200);
+                
+                return true;
+            }
+            
+            // Custom alert function (same as books page)
+            function showCustomAlert(message) {
+                const existingAlert = document.querySelector('.custom-search-alert');
+                if (existingAlert) existingAlert.remove();
+                
+                const alert = document.createElement('div');
+                alert.className = 'custom-search-alert';
+                alert.innerHTML = 
+                    '<div class="alert-content">' +
+                        '<i class="fas fa-exclamation-triangle"></i>' +
+                        '<span>' + message + '</span>' +
+                        '<button class="alert-close" onclick="this.parentElement.parentElement.remove()">' +
+                            '<i class="fas fa-times"></i>' +
+                        '</button>' +
+                    '</div>';
+                
+                alert.style.cssText = 
+                    'position: fixed;' +
+                    'top: 20px;' +
+                    'right: 20px;' +
+                    'background: linear-gradient(135deg, #ff6b6b, #ff5252);' +
+                    'color: white;' +
+                    'padding: 1rem 1.5rem;' +
+                    'border-radius: 12px;' +
+                    'box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);' +
+                    'z-index: 10000;' +
+                    'animation: slideInRight 0.3s ease;' +
+                    'max-width: 400px;' +
+                    'font-family: var(--font-secondary);';
+                
+                document.body.appendChild(alert);
+                
+                setTimeout(() => {
+                    if (alert.parentElement) {
+                        alert.style.animation = 'slideOutRight 0.3s ease';
+                        setTimeout(() => alert.remove(), 300);
+                    }
+                }, 4000);
+            }
+            
+            // Form submission
+            if (searchForm) {
+                searchForm.addEventListener('submit', validateAndSubmitForm);
+            }
+            
+            // "Tutti gli Autori" button functionality
+            if (showAllAuthorsBtn) {
+                showAllAuthorsBtn.addEventListener('click', function(e) {
+                    // Check if we're already on the main authors page (no search params)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const hasSearchParams = urlParams.has('firstName') || urlParams.has('lastName') || urlParams.has('nationality');
+                    
+                    if (hasSearchParams) {
+                        // If we have search parameters, let the normal navigation happen
+                        return true;
+                    } else {
+                        // If we're already on the main page, just scroll to authors section
+                        e.preventDefault();
+                        
+                        // Add loading state
+                        this.style.opacity = '0.8';
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Caricamento...</span>';
+                        
+                        // Scroll to authors section after a brief delay for visual feedback
+                        setTimeout(() => {
+                            scrollToAuthorsSection();
+                            
+                            // Restore button state
+                            this.style.opacity = '';
+                            this.innerHTML = '<i class="fas fa-users"></i><span>Tutti gli Autori</span>';
+                        }, 300);
+                    }
+                });
+            }
+            
+            // Clear button functionality
+            if (clearButton) {
+                clearButton.addEventListener('click', function() {
+                    const inputs = [firstNameInput, lastNameInput, nationalitySelect];
+                    
+                    inputs.forEach((input, index) => {
+                        if (input) {
+                            setTimeout(() => {
+                                input.value = '';
+                                input.style.transform = 'scale(0.95)';
+                                input.style.background = 'rgba(108, 117, 125, 0.1)';
+                                
+                                setTimeout(() => {
+                                    input.style.transform = '';
+                                    input.style.background = '';
+                                }, 200);
+                            }, index * 100);
+                        }
+                    });
+                    
+                    setTimeout(() => {
+                        firstNameInput?.focus();
+                    }, 400);
+                });
+            }
+            
+            // Enhanced input interactions
+            const inputs = [firstNameInput, lastNameInput, nationalitySelect];
+            inputs.forEach(input => {
+                if (input) {
+                    // Enter key handling
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            this.style.transform = 'scale(0.98)';
+                            setTimeout(() => {
+                                this.style.transform = '';
+                                validateAndSubmitForm();
+                            }, 100);
+                        }
+                    });
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !e.shiftKey) {
+                    e.preventDefault();
+                    firstNameInput?.focus();
+                    firstNameInput?.select();
+                }
+                
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'K') {
+                    e.preventDefault();
+                    lastNameInput?.focus();
+                    lastNameInput?.select();
+                }
+                
+                if (e.key === 'Escape') {
+                    const activeElement = document.activeElement;
+                    if (inputs.includes(activeElement)) {
+                        clearButton?.click();
+                    }
+                }
+                
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    validateAndSubmitForm();
+                }
+            });
+            
+            // Smooth scroll to results after search
+            if (window.location.search.includes('firstName=') || 
+                window.location.search.includes('lastName=') || 
+                window.location.search.includes('nationality=')) {
+                setTimeout(() => {
+                    scrollToAuthorsSection();
+                }, 300);
+            }
+            
+            // Loading state recovery
+            if (searchButton) {
+                searchButton.disabled = false;
+                searchButton.innerHTML = '<i class="fas fa-search"></i><span>Cerca</span>';
+                searchButton.style.opacity = '';
+            }
+        });
+    </script>
+</body>
+</html>

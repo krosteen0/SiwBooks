@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Modifica Libro - ' + ${book != null ? book.title : 'Libro'} + ' - Biblioteca Sitarello'">Modifica Libro - Biblioteca Sitarello</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/book-edit.css}" />
+    
+    <meta name="description" th:content="'Modifica le informazioni del libro ' + ${book != null ? book.title : ''} + ' nella biblioteca di Sitarello'">
+    
+    <!-- CSRF token for JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body class="book-edit-page">
+    <!-- Include navbar fragment -->
+    <div th:insert="~{fragments/navbar :: navbar}"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                <span class="title-main">Modifica Libro</span>  
+            </h1>
+            <p class="hero-subtitle" th:text="'Gestisci i dati di: ' + ${book != null ? book.title : 'questo libro'}">
+                Gestisci i dati del libro
+            </p>
+        </div>
+    </section>
+    
+    <main class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span>/</span>
+            <a th:href="@{/book}">
+                <i class="fas fa-book"></i> Biblioteca
+            </a>
+            <span>/</span>
+            <a th:href="@{'/book/details/' + ${book != null ? book.id : ''}}" th:text="${book != null ? book.title : 'Libro'}">Libro</a>
+            <span>/</span>
+            <span>Modifica</span>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <div class="alert-content">
+                <i class="fas fa-check-circle"></i>
+                <div class="alert-text">
+                    <strong>Successo!</strong>
+                    <span th:switch="${param.success[0]}">
+                        <span th:case="update">Libro aggiornato con successo!</span>
+                        <span th:case="upload">Immagini caricate con successo!</span>
+                        <span th:case="*">Operazione completata con successo!</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-error">
+            <div class="alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-text">
+                    <strong>Errore!</strong>
+                    <span th:switch="${param.error[0]}">
+                        <span th:case="filesize">File troppo grande (max 5MB)</span>
+                        <span th:case="filetype">Tipo di file non supportato</span>
+                        <span th:case="upload">Errore durante il caricamento delle immagini</span>
+                        <span th:case="*">Si è verificato un errore durante l'operazione</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Header Section -->
+        <section class="book-header-section">
+            <div class="book-header-container">
+                <!-- Main Book Display -->
+                <div class="book-display">
+                    <!-- Book Image -->
+                    <div class="book-image-container">
+                        <div th:if="${book.images != null && !book.images.isEmpty()}" class="book-image">
+                            <img th:src="@{'/book/image/' + ${book.images[0].id}}" 
+                                 th:alt="'Copertina di ' + ${book.title}"
+                                 class="cover-image">
+                        </div>
+                        <div th:unless="${book.images != null && !book.images.isEmpty()}" class="book-image no-cover">
+                            <div class="no-cover-content">
+                                <i class="fas fa-book"></i>
+                                <span>Nessuna copertina</span>
+                            </div>
+                        </div>
+                        <div class="image-count-badge" th:if="${book.images != null && book.images.size() > 1}">
+                            <i class="fas fa-images"></i>
+                            <span th:text="${book.images.size()}">+1</span>
+                        </div>
+                    </div>
+
+                    <!-- Book Info -->
+                    <div class="book-info">
+                        <div class="book-title-section">
+                            <h1 class="book-title" th:text="${book.title}">Titolo del Libro</h1>
+                            <div class="book-authors">
+                                <div th:if="${book.authors != null && !book.authors.isEmpty()}" class="authors-container">
+                                    <span th:each="author, iterStat : ${book.authors}" class="author-name">
+                                        <span th:text="${author.firstName + ' ' + author.lastName}">Nome Autore</span>
+                                        <span th:if="!${iterStat.last}" class="separator">•</span>
+                                    </span>
+                                </div>
+                                <div th:unless="${book.authors != null && !book.authors.isEmpty()}" class="no-author">
+                                    <span>Autore non specificato</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Metadata -->
+                        <div class="book-metadata">
+                            <div class="metadata-grid">
+                                <div class="metadata-item" th:if="${book.publicationYear}">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span class="metadata-label">Anno:</span>
+                                    <span class="metadata-value" th:text="${book.publicationYear}">2023</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <i class="fas fa-images"></i>
+                                    <span class="metadata-label">Immagini:</span>
+                                    <span class="metadata-value" th:text="${book.images != null ? book.images.size() : 0}">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Description -->
+                        <div class="book-description" th:if="${book.description}">
+                            <h3>Descrizione</h3>
+                            <p th:text="${book.description}">Descrizione del libro...</p>
+                        </div>
+                        <div class="book-description" th:unless="${book.description}">
+                            <h3>Descrizione</h3>
+                            <p class="no-description">Nessuna descrizione disponibile per questo libro.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Management Actions Section -->
+        <section class="management-section">
+            <div class="management-container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-cogs"></i>
+                        Gestione Libro
+                    </h2>
+                    <a th:href="@{'/book/details/' + ${book.id}}" class="back-to-book-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Torna al Libro
+                    </a>
+                </div>
+                
+                <div class="management-grid">
+                    <!-- Edit Details Card -->
+                    <div class="management-card details-card">
+                        <div class="card-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Informazioni</h3>
+                            <p>Cambia titolo, descrizione, anno di pubblicazione e gestisci gli autori del libro.</p>
+                            <a th:href="@{'/book/edit/' + ${book.id} + '/details'}" class="card-action">
+                                Modifica
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Manage Images Card -->
+                    <div class="management-card images-card">
+                        <div class="card-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Immagini</h3>
+                            <p>Carica nuove immagini, rimuovi quelle esistenti e riordina la galleria del libro.</p>
+                            <a th:href="@{'/book/edit/' + ${book.id} + '/images'}" class="card-action">
+                                Modifica
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Delete Book Card -->
+                <div class="management-card delete-card">
+                    <div class="card-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Elimina Libro</h3>
+                        <p>Rimuovi definitivamente questo libro dalla biblioteca. Questa azione non può essere annullata.</p>
+                        <button class="card-action delete-action" th:onclick="'confirmDelete(' + ${book.id} + ')'">
+                            Elimina Definitivamente
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+    </main>
+    
+    <!-- Include footer fragment -->
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Torna su">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    
+    <!-- Simple JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Back to top button functionality
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            if (backToTopBtn) {
+                window.addEventListener('scroll', function() {
+                    if (window.pageYOffset > 300) {
+                        backToTopBtn.classList.add('visible');
+                    } else {
+                        backToTopBtn.classList.remove('visible');
+                    }
+                });
+                
+                backToTopBtn.addEventListener('click', function() {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+        });
+        
+        // Delete book confirmation function
+        function confirmDelete(bookId) {
+            if (confirm('Sei sicuro di voler eliminare questo libro?\n\nQuesta azione non può essere annullata e rimuoverà definitivamente:\n• Il libro dalla biblioteca\n• Tutte le sue immagini\n• Tutte le recensioni associate\n\nVuoi continuare?')) {
+                // Create and submit delete form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/book/delete/' + bookId;
+                
+                // Add CSRF token if present
+                const csrfToken = document.querySelector('meta[name="_csrf"]');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+                
+                if (csrfToken && csrfHeader) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_csrf';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>
