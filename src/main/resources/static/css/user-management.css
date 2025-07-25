@@ -97,7 +97,7 @@ body {
    ======================================================================= */
 
 .hero-section {
-    min-height: 40vh;
+    min-height: 100vh;
     position: relative;
     display: flex;
     align-items: center;
